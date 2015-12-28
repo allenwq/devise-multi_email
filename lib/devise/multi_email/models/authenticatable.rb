@@ -1,0 +1,50 @@
+module Devise
+  module Models
+    module MultiEmailAuthenticatable
+      extend ActiveSupport::Concern
+
+      included do
+        devise :database_authenticatable
+      end
+
+      # Gets the primary email record.
+      def primary_email_record
+        valid_emails = emails.each.select do |email_record|
+          !email_record.destroyed? && !email_record.marked_for_destruction?
+        end
+
+        valid_emails.first
+      end
+
+      # Gets the primary email address of the user.
+      def email
+        primary_email_record.try(:email)
+      end
+
+      # Sets the default email address of the user.
+      def email=(email)
+        record = primary_email_record
+        if email
+          record ||= emails.build
+          record.email = email
+        elsif email.nil? && record
+          record.mark_for_destruction
+        end
+      end
+
+      module ClassMethods
+        def find_first_by_auth_conditions(tainted_conditions, opts = {})
+          email = tainted_conditions.delete(:email)
+          if email && email.is_a?(String)
+            conditions = devise_parameter_filter.filter(tainted_conditions).merge(opts).
+                reverse_merge(emails: { email: email })
+
+            joins(:emails).find_by(conditions)
+          else
+            super(tainted_conditions, opts)
+          end
+        end
+      end
+    end
+  end
+end

@@ -1,7 +1,4 @@
-require "devise/multi_email/version"
+require 'devise/multi_email/version'
+require 'devise'
 
-module Devise
-  module MultiEmail
-    # Your code goes here...
-  end
-end
+Devise.add_module :multi_email_authenticatable, model: 'devise/multi_email/models/authenticatable'

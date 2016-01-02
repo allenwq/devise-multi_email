@@ -14,6 +14,17 @@ module FeatureTestHelpers
     end
   end
 
+  def create_email(user, options = {})
+    email = Email.create!(
+      user: user,
+      email: options[:email] || "user_#{SecureRandom.hex}@test.com",
+      created_at: Time.now.utc
+    )
+    email.update_attribute(:confirmation_sent_at, options[:confirmation_sent_at]) if options[:confirmation_sent_at]
+    email.confirm unless options[:confirm] == false
+    email
+  end
+
   def sign_in_as_user(options={}, &block)
     user = create_user(options)
     visit_with_option options[:visit], new_user_session_path

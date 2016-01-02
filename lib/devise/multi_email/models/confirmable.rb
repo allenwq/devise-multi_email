@@ -32,7 +32,7 @@ module Devise
 
       module InstanceReplacementMethods
         delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
-                 :confirmed?, :confirmation_period_valid?, :reconfirmation_required?, to: :primary_email_record
+                 :confirm, :confirmed?, :confirmation_period_valid?, :reconfirmation_required?, to: :primary_email_record
 
         def unconfirmed_email
           primary_email_record.try(:unconfirmed_email)

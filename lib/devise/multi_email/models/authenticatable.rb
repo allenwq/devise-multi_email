@@ -13,7 +13,9 @@ module Devise
           !email_record.destroyed? && !email_record.marked_for_destruction?
         end
 
-        valid_emails.first
+        result = valid_emails.find(&:primary?)
+        result ||= valid_emails.first
+        result
       end
 
       # Gets the primary email address of the user.
@@ -27,6 +29,7 @@ module Devise
         if email
           record ||= emails.build
           record.email = email
+          record.primary = true
         elsif email.nil? && record
           record.mark_for_destruction
         end

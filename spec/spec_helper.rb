@@ -14,3 +14,7 @@ Capybara.app = RailsApp::Application
 RSpec.configure do |config|
   config.include RailsApp::Application.routes.url_helpers
 end
+
+# Add support to load paths so we can overwrite broken webrat setup
+$:.unshift File.expand_path('../support', __FILE__)
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }

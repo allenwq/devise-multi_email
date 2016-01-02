@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe 'Confirmable', type: :feature do
   def visit_user_confirmation_with_token(confirmation_token)

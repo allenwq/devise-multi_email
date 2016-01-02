@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe 'Recoverable', type: :feature do
   def visit_new_password_path

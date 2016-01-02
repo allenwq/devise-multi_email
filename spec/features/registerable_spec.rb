@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe 'Registerable', type: :feature do
   before { visit new_user_session_path }

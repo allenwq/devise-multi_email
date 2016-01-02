@@ -8,3 +8,5 @@
 /spec/reports/
 /tmp/
 /spec/rails_app/log/*
+/.ruby-version
+/.idea/

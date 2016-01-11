@@ -1,12 +1,28 @@
 module Devise
   module Models
+    module EmailAuthenticatable
+      USER_ASSOCIATION = :user
+
+      def devise_scope
+        user_association = self.class.reflect_on_association(USER_ASSOCIATION)
+        if user_association
+          user_association.class_name.constantize
+        else
+          raise "#{self.class.name}: Association :#{USER_ASSOCIATION} not found: Have you declared that ?"
+        end
+      end
+    end
+
     module MultiEmailAuthenticatable
       extend ActiveSupport::Concern
+      EMAILS_ASSOCIATION = :emails
 
       included do
         devise :database_authenticatable
 
         attr_accessor :current_login_email
+
+        email_class.send :include, EmailAuthenticatable
       end
 
       def self.required_fields(klass)
@@ -53,6 +69,15 @@ module Devise
             resource
           else
             super(tainted_conditions, opts)
+          end
+        end
+
+        def email_class
+          email_association = reflect_on_association(EMAILS_ASSOCIATION)
+          if email_association
+            email_association.class_name.constantize
+          else
+            raise "#{self.class.name}: Association :#{EMAILS_ASSOCIATION} not found: It might because your declaration is after `devise :multi_email_confirmable`."
           end
         end
       end

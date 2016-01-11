@@ -26,11 +26,22 @@ module Devise
       included do
         devise :validatable
 
+        after_validation :propagate_email_errors
         email_class.send :include, EmailValidatable
       end
 
+      private
+
       def email_changed?
         false
+      end
+
+      def propagate_email_errors
+        return if (email_errors = errors.delete(self.class::EMAILS_ASSOCIATION)).nil?
+
+        email_errors.each do |error|
+          errors.add(:email, error)
+        end
       end
     end
   end

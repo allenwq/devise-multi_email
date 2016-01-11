@@ -12,7 +12,7 @@ RSpec.describe 'Authenticatable', type: :feature do
         click_button 'Log in'
 
         expect(current_path).to eq root_path
-        expect(page).to have_selector('div', 'You are now signed in.')
+        expect(page).to have_selector('div', text: 'Signed in successfully.')
       end
 
       context 'when not confirmed' do
@@ -25,7 +25,7 @@ RSpec.describe 'Authenticatable', type: :feature do
           click_button 'Log in'
 
           expect(current_path).to eq new_user_session_path
-          expect(page).to have_selector('div#flash_alert', 'You have to confirm your email address before continuing.')
+          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
         end
       end
     end
@@ -55,7 +55,7 @@ RSpec.describe 'Authenticatable', type: :feature do
           click_button 'Log in'
 
           expect(current_path).to eq new_user_session_path
-          expect(page).to have_selector('div#flash_alert', 'You have to confirm your email address before continuing.')
+          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
         end
       end
     end

@@ -25,7 +25,7 @@ RSpec.describe 'Recoverable', type: :feature do
       end
 
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_selector('div', 'You will receive an email with instructions on how to reset your password in a few minutes.')
+      expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
     end
 
     context 'when not confirmed' do
@@ -38,7 +38,7 @@ RSpec.describe 'Recoverable', type: :feature do
         end
 
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', 'You will receive an email with instructions on how to reset your password in a few minutes.')
+        expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe 'Recoverable', type: :feature do
       end
 
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_selector('div', 'You will receive an email with instructions on how to reset your password in a few minutes.')
+      expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
     end
 
     context 'when not confirmed' do
@@ -68,7 +68,7 @@ RSpec.describe 'Recoverable', type: :feature do
         end
 
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', 'You will receive an email with instructions on how to reset your password in a few minutes.')
+        expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
     end
   end

@@ -20,7 +20,7 @@ RSpec.describe 'Confirmable', type: :feature do
     resend_confirmation
 
     expect(current_path).to eq '/users/sign_in'
-    expect(page).to have_selector('div', 'You will receive an email with instructions for how to confirm your email address in a few minutes')
+    expect(page).to have_selector('div', text: 'You will receive an email with instructions for how to confirm your email address in a few minutes')
     expect(ActionMailer::Base.deliveries.size).to eq 1
     expect(ActionMailer::Base.deliveries.first.from).to eq ['please-change-me@config-initializers-devise.com']
   end
@@ -30,7 +30,7 @@ RSpec.describe 'Confirmable', type: :feature do
     expect(user).not_to be_confirmed
     visit_user_confirmation_with_token(user.primary_email_record.confirmation_token)
 
-    expect(page).to have_selector('div', 'Your email address has been successfully confirmed.')
+    expect(page).to have_selector('div', text: 'Your email address has been successfully confirmed.')
     expect(current_path).to eq '/users/sign_in'
     expect(user.reload).to be_confirmed
     expect(user.primary_email_record).to be_confirmed

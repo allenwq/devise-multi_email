@@ -45,13 +45,21 @@ module Devise
 
         # This need to be forwarded to the email that logs in the user
         def active_for_authentication?
-          login_email = nil
-          if respond_to?(:current_login_email) && current_login_email
-            login_email = send(EMAILS_ASSOCIATION).find_by(email: current_login_email)
-          end
+          login_email = current_login_email_record
 
           if login_email
             super && login_email.active_for_authentication?
+          else
+            super
+          end
+        end
+
+        # Shows email not confirmed instead of account inactive when the email that user used to login is not confirmed
+        def inactive_message
+          login_email = current_login_email_record
+
+          if login_email && !login_email.confirmed?
+            :unconfirmed
           else
             super
           end
@@ -74,6 +82,14 @@ module Devise
 
         # Email will send confirmation instructions.
         def send_on_create_confirmation_instructions
+        end
+
+        private
+
+        def current_login_email_record
+          if respond_to?(:current_login_email) && current_login_email
+            send(EMAILS_ASSOCIATION).find_by(email: current_login_email)
+          end
         end
       end
 

@@ -14,20 +14,6 @@ RSpec.describe 'Authenticatable', type: :feature do
         expect(current_path).to eq root_path
         expect(page).to have_selector('div', text: 'Signed in successfully.')
       end
-
-      context 'when not confirmed' do
-        it 'shows the error message' do
-          user = create_user(confirm: false)
-          visit new_user_session_path
-
-          fill_in 'user_email', with: user.email
-          fill_in 'user_password', with: '12345678'
-          click_button 'Log in'
-
-          expect(current_path).to eq new_user_session_path
-          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
-        end
-      end
     end
 
     context 'with non-primary email' do
@@ -42,21 +28,6 @@ RSpec.describe 'Authenticatable', type: :feature do
 
         expect(current_path).to eq root_path
         expect(page).to have_selector('div', 'You are now signed in.')
-      end
-
-      context 'when not confirmed' do
-        it 'shows the error message' do
-          user = create_user
-          secondary_email = create_email(user, confirm: false)
-          visit new_user_session_path
-
-          fill_in 'user_email', with: secondary_email.email
-          fill_in 'user_password', with: '12345678'
-          click_button 'Log in'
-
-          expect(current_path).to eq new_user_session_path
-          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
-        end
       end
     end
   end

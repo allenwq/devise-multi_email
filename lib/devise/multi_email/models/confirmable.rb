@@ -5,6 +5,14 @@ module Devise
 
       included do
         devise :confirmable
+
+        extend ClassReplacementMethods
+      end
+
+      module ClassReplacementMethods
+        def allow_unconfirmed_access_for
+          0.day
+        end
       end
     end
 
@@ -26,7 +34,7 @@ module Devise
       module InstanceReplacementMethods
         delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
                  :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?,
-                 :confirmation_period_valid?, :reconfirmation_required?, to: :primary_email_record
+                 :reconfirmation_required?, to: :primary_email_record
 
         def unconfirmed_email
           primary_email_record.try(:unconfirmed_email)
@@ -37,11 +45,11 @@ module Devise
           primary_email && primary_email.pending_reconfirmation?
         end
 
-        # This need to be forwarded to the email that logs in the user
+        # This need to be forwarded to the email that the user logged in with
         def active_for_authentication?
           login_email = current_login_email_record
 
-          if login_email
+          if login_email && !login_email.primary?
             super && login_email.active_for_authentication?
           else
             super
@@ -52,7 +60,7 @@ module Devise
         def inactive_message
           login_email = current_login_email_record
 
-          if login_email && !login_email.confirmed?
+          if login_email && !login_email.primary? && !login_email.confirmed?
             :unconfirmed
           else
             super

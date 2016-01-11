@@ -35,4 +35,78 @@ RSpec.describe 'Confirmable', type: :feature do
     expect(user.reload).to be_confirmed
     expect(user.primary_email_record).to be_confirmed
   end
+
+  describe 'Unconfirmed sign in' do
+    context 'with primary email' do
+      it 'shows the error message' do
+        user = create_user(confirm: false)
+        visit new_user_session_path
+
+        fill_in 'user_email', with: user.email
+        fill_in 'user_password', with: '12345678'
+        click_button 'Log in'
+
+        expect(current_path).to eq new_user_session_path
+        expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
+      end
+    end
+
+    context 'with non-primary email' do
+      it 'shows the error message' do
+        user = create_user
+        secondary_email = create_email(user, confirm: false)
+        visit new_user_session_path
+
+        fill_in 'user_email', with: secondary_email.email
+        fill_in 'user_password', with: '12345678'
+        click_button 'Log in'
+
+        expect(current_path).to eq new_user_session_path
+        expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
+      end
+    end
+
+    context 'when unconfirmed access is allowed' do
+      before do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 2.days
+        end
+      end
+
+      after do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 0.day
+        end
+      end
+
+      context 'with primary email' do
+        it 'signs the user in' do
+          user = create_user(confirm: false)
+          visit new_user_session_path
+
+          fill_in 'user_email', with: user.email
+          fill_in 'user_password', with: '12345678'
+          click_button 'Log in'
+
+          expect(current_path).to eq root_path
+          expect(page).to have_selector('div', text: 'Signed in successfully.')
+        end
+      end
+
+      context 'with non-primary email' do
+        it 'shows the error message' do
+          user = create_user
+          secondary_email = create_email(user, confirm: false)
+          visit new_user_session_path
+
+          fill_in 'user_email', with: secondary_email.email
+          fill_in 'user_password', with: '12345678'
+          click_button 'Log in'
+
+          expect(current_path).to eq new_user_session_path
+          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
+        end
+      end
+    end
+  end
 end

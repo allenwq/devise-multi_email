@@ -46,7 +46,6 @@ RSpec.describe 'Authenticatable', type: :feature do
 
       context 'when not confirmed' do
         it 'shows the error message' do
-          pending 'To implement'
           user = create_user
           secondary_email = create_email(user, confirm: false)
           visit new_user_session_path

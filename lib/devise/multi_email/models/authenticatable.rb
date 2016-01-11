@@ -5,6 +5,8 @@ module Devise
 
       included do
         devise :database_authenticatable
+
+        attr_accessor :current_login_email
       end
 
       # Gets the primary email record.
@@ -42,7 +44,9 @@ module Devise
             conditions = devise_parameter_filter.filter(tainted_conditions).to_h.merge(opts).
                 reverse_merge(emails: { email: email })
 
-            joins(:emails).find_by(conditions)
+            resource = joins(:emails).find_by(conditions)
+            resource.current_login_email = email if resource.respond_to?(:current_login_email=)
+            resource
           else
             super(tainted_conditions, opts)
           end

@@ -43,6 +43,20 @@ module Devise
           primary_email && primary_email.pending_reconfirmation?
         end
 
+        # This need to be forwarded to the email that logs in the user
+        def active_for_authentication?
+          login_email = nil
+          if respond_to?(:current_login_email) && current_login_email
+            login_email = send(EMAILS_ASSOCIATION).find_by(email: current_login_email)
+          end
+
+          if login_email
+            super && login_email.active_for_authentication?
+          else
+            super
+          end
+        end
+
         protected
 
         # Overrides Devise::Models::Confirmable#postpone_email_change?

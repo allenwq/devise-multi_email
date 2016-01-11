@@ -30,6 +30,10 @@ module Devise
         email_class.send :include, EmailValidatable
       end
 
+      def self.required_fields(klass)
+        []
+      end
+
       private
 
       def email_changed?

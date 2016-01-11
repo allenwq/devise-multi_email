@@ -30,9 +30,14 @@ module Devise
         email_class.send :include, EmailConfirmable
       end
 
+      def self.required_fields(klass)
+        []
+      end
+
       module InstanceReplacementMethods
         delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
-                 :confirm, :confirmed?, :confirmation_period_valid?, :reconfirmation_required?, to: :primary_email_record
+                 :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?,
+                 :confirmation_period_valid?, :reconfirmation_required?, to: :primary_email_record
 
         def unconfirmed_email
           primary_email_record.try(:unconfirmed_email)
@@ -113,6 +118,11 @@ module Devise
         # Forward the logic to email.
         def send_confirmation_instructions(params)
           email_class.send_confirmation_instructions(params)
+        end
+
+
+        def required_fields(klass)
+          [:lol]
         end
       end
     end

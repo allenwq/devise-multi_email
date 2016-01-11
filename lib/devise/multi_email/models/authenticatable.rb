@@ -9,6 +9,10 @@ module Devise
         attr_accessor :current_login_email
       end
 
+      def self.required_fields(klass)
+        []
+      end
+
       # Gets the primary email record.
       def primary_email_record
         valid_emails = emails.each.select do |email_record|

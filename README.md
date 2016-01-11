@@ -52,7 +52,7 @@ create_table :emails do |t|
 Sending different confirmaitons to different emails is supported. What you need to do is:
 
 Declare `devise :multi_email_confirmable` in your `User` model:
-```
+```ruby
 class User < ActiveRecord::Base
   has_many :emails
 
@@ -62,7 +62,7 @@ end
 ```
 
 Add `:confirmation_token`, `:confirmed_at` and `:confirmation_sent_at` to your emails table:
-```
+```ruby
 create_table :emails do |t|
   t.integer :user_id
   t.string :email
@@ -80,7 +80,7 @@ Then all the methods in devise confirmable are avalible in your `Email` model. Y
 ## Validatable with multiple emails
 Declare `devise :multi_email_validatable` in the user model, then all the user emails will be validated:
 
-```
+```ruby
 class User < ActiveRecord::Base
   has_many :emails
 
@@ -92,7 +92,7 @@ end
 ## What's more
 
 The gem works with all other devise modules just as normal, you don't need to add the `multi_email` prefix.
-```
+```ruby
   devise :multi_email_authenticatable, :multi_email_confirmable, :multi_email_validatable, :lockable, 
          :recoverable, :registerable, :rememberable, :timeoutable, :trackable
 ```

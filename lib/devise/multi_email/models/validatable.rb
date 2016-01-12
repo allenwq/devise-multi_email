@@ -25,6 +25,7 @@ module Devise
 
       included do
         devise :validatable
+        validates Devise::Models::MultiEmailAuthenticatable::EMAILS_ASSOCIATION, presence: true
 
         after_validation :propagate_email_errors
         email_class.send :include, EmailValidatable

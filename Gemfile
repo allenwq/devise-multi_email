@@ -9,4 +9,6 @@ group :development, :test do
   gem 'rspec', '~> 3'
   gem 'sqlite3'
   gem 'capybara'
+  gem 'coveralls', require: false
 end
+

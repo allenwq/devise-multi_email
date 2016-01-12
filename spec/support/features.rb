@@ -1,4 +1,4 @@
-module FeatureTestHelpers
+module RailsTestHelpers
   def create_user(options={})
     @user ||= begin
       user = User.create!(
@@ -38,5 +38,5 @@ module FeatureTestHelpers
 end
 
 RSpec.configure do |config|
-  config.include FeatureTestHelpers, type: :feature
+  config.include RailsTestHelpers
 end

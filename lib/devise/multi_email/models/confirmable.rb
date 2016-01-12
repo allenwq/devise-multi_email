@@ -33,17 +33,8 @@ module Devise
 
       module InstanceReplacementMethods
         delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
-                 :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?,
-                 :reconfirmation_required?, to: :primary_email_record
-
-        def unconfirmed_email
-          primary_email_record.try(:unconfirmed_email)
-        end
-
-        def pending_reconfirmation?
-          primary_email = primary_email_record
-          primary_email && primary_email.pending_reconfirmation?
-        end
+                 :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
+                 :reconfirmation_required?, :pending_reconfirmation?, to: :primary_email_record, allow_nil: true
 
         # This need to be forwarded to the email that the user logged in with
         def active_for_authentication?

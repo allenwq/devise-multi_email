@@ -1,4 +1,4 @@
-# Devise::MultiEmail [![Build Status](https://travis-ci.org/allenwq/devise-multi_email.svg?branch=master)](https://travis-ci.org/allenwq/devise-multi_email)
+# Devise::MultiEmail [![Build Status](https://travis-ci.org/allenwq/devise-multi_email.svg?branch=master)](https://travis-ci.org/allenwq/devise-multi_email) [![Coverage Status](https://coveralls.io/repos/allenwq/devise-multi_email/badge.svg?branch=master&service=github)](https://coveralls.io/github/allenwq/devise-multi_email?branch=master)
 
 Let [devise](https://github.com/plataformatec/devise) support multilpe emails, it allows you to:
 - Login with multiple emails

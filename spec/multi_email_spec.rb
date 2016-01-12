@@ -54,4 +54,23 @@ RSpec.describe 'Devise Mutil Email' do
       end
     end
   end
+
+  describe 'Validatable' do
+    context 'when email is a nested attribute' do
+      class UserWithNestedAttributes < ActiveRecord::Base
+        self.table_name = 'users'
+        has_many :emails, foreign_key: :user_id
+
+        devise :multi_email_authenticatable, :multi_email_validatable
+
+        accepts_nested_attributes_for :emails
+      end
+
+      it 'propagates the errors to user' do
+        user = UserWithNestedAttributes.new(username: 'user', email: 'inavlid_email@')
+        expect(user).not_to be_valid
+        expect(user.errors[:email]).to be_present
+      end
+    end
+  end
 end

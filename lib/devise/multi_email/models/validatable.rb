@@ -42,7 +42,12 @@ module Devise
       end
 
       def propagate_email_errors
-        return if (email_errors = errors.delete(self.class::EMAILS_ASSOCIATION)).nil?
+        email_error_key = self.class::EMAILS_ASSOCIATION
+        if respond_to?("#{self.class::EMAILS_ASSOCIATION}_attributes=")
+          email_error_key = "#{email_error_key}.email".to_sym
+        end
+
+        return if (email_errors = errors.delete(email_error_key)).nil?
 
         email_errors.each do |error|
           errors.add(:email, error)

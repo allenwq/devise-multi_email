@@ -59,6 +59,7 @@ module Devise
 
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
+          tainted_conditions = tainted_conditions.dup
           email = tainted_conditions.delete(:email)
           if email && email.is_a?(String)
             conditions = devise_parameter_filter.filter(tainted_conditions).to_h.merge(opts).

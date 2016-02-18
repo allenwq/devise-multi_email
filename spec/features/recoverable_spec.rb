@@ -87,4 +87,19 @@ RSpec.describe 'Recoverable', type: :feature do
       end
     end
   end
+
+  context 'with non-existing email' do
+    before do
+      visit_new_password_path
+
+      request_forgot_password do
+        fill_in 'user_email', with: "#{SecureRandom.base64}@example.com"
+      end
+    end
+
+    it 'shows email does not exist' do
+      expect(current_path).to eq '/users/password'
+      expect(page).to have_selector('div', text: 'Email not found')
+    end
+  end
 end

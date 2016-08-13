@@ -59,11 +59,12 @@ module Devise
 
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
-          tainted_conditions = tainted_conditions.dup
-          email = tainted_conditions.delete(:email)
+          filtered_conditions = devise_parameter_filter.filter(tainted_conditions.dup)
+          email = filtered_conditions.delete(:email)
+
           if email && email.is_a?(String)
-            conditions = devise_parameter_filter.filter(tainted_conditions).to_h.merge(opts).
-                reverse_merge(emails: { email: email })
+            conditions = filtered_conditions.to_h.merge(opts).
+              reverse_merge(emails: { email: email })
 
             resource = joins(:emails).find_by(conditions)
             resource.current_login_email = email if resource.respond_to?(:current_login_email=)

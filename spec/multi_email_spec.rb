@@ -53,6 +53,14 @@ RSpec.describe 'Devise Mutil Email' do
         expect(user.email).to eq(nil)
       end
     end
+
+    describe '.find_by_email()' do
+      let(:user) { create_user }
+
+      it 'returns user from email' do
+        expect(User.find_by_email(user.email)).to eq(user)
+      end
+    end
   end
 
   describe 'Validatable' do

@@ -82,6 +82,10 @@ module Devise
             raise "#{self.class.name}: Association :#{EMAILS_ASSOCIATION} not found: It might because your declaration is after `devise :multi_email_confirmable`."
           end
         end
+        
+        def find_by_email(email)
+          joins(:emails).where(emails: {email: email.downcase}).first
+        end
       end
     end
   end

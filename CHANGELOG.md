@@ -1,3 +1,6 @@
+### 1.0.5 - 2016-12-29
+* New `.find_by_email` method. Thanks to [mrjlynch](https://github.com/mrjlynch). 
+
 ### 1.0.4 - 2016-08-13
 * Bug fix: Case-insentive configuration of email is ignored (#1). Thanks to [@fonglh](https://github.com/fonglh).
 

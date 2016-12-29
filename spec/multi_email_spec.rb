@@ -54,7 +54,7 @@ RSpec.describe 'Devise Mutil Email' do
       end
     end
 
-    describe 'find_by_email()' do
+    describe '.find_by_email()' do
       let(:user) { create_user }
 
       it 'returns user from email' do

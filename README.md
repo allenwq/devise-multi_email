@@ -111,7 +111,10 @@ The gem works with all other devise modules just as normal, you don't need to ad
 ## Issues
 You need to implement add/delete emails for a user as well as set/unset primary email.
 
-You can do `email.send_confirmation_instructions` for every email, but you also need to handle this logic in some place(excpet for the primary email). e.g. After a new email was added by a user, you might want to provide some buttons to allow user to resend confirmation instrucitons for that email.
+You can do `email.send_confirmation_instructions` for every email, but you also need to handle this logic in some place(excpet for the primary email). e.g. After a new email was added by a user, you might want to provide some buttons to allow user to resend confirmation instructions for that email.
+
+## Wiki
+[Migrating exiting user records](https://github.com/allenwq/devise-multi_email/wiki/Migrating-existing-user-records)
 
 ## Development
 

@@ -60,7 +60,6 @@ module Devise
       # skip_confirmation on the users primary email
       def skip_confirmation!
         primary_email_record.skip_confirmation!
-        primary_email_record.save
       end
 
       module ClassMethods

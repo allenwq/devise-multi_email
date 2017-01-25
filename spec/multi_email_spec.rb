@@ -62,7 +62,7 @@ RSpec.describe 'Devise Mutil Email' do
       end
     end
 
-    describe '.skip_confirmation!' do
+    describe '#skip_confirmation!' do
       let(:user) { create_user(confirm: false) }
 
       it 'confirms user' do

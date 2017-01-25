@@ -57,6 +57,11 @@ module Devise
         end
       end
 
+      # skip_confirmation on the users primary email
+      def skip_confirmation!
+        primary_email_record.skip_confirmation!
+      end
+
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
           filtered_conditions = devise_parameter_filter.filter(tainted_conditions.dup)

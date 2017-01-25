@@ -72,10 +72,10 @@ RSpec.describe 'Devise Mutil Email' do
       end
 
       context 'on the email object' do
-        let(:user) { create_user(confirm: false) }
+        let(:primary_email_record) { create_user(confirm: false).primary_email_record }
 
         it 'confirms user' do
-          expect{user.primary_email_record.skip_confirmation!}.to change{user.confirmed?}.from(false).to(true)
+          expect{primary_email_record.skip_confirmation!}.to change{user.confirmed?}.from(false).to(true)
         end
       end
     end

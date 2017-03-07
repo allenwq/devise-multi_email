@@ -4,7 +4,7 @@ Let [devise](https://github.com/plataformatec/devise) support multilpe emails, i
 - Login with multiple emails
 - Send confirmations to multiple emails
 - Recover the password with any of the emails
-- Validations for multiple emails 
+- Validations for multiple emails
 
 `:multi_email_authenticatable`, `:multi_email_confirmable` and `:multi_email_validatable` are provided by devise-multi_email.
 
@@ -69,6 +69,7 @@ create_table :emails do |t|
   t.boolean :primary, default: false
 
   ## Confirmable
+  t.string :unconfirmed_email
   t.string   :confirmation_token
   t.datetime :confirmed_at
   t.datetime :confirmation_sent_at
@@ -89,6 +90,8 @@ class User < ActiveRecord::Base
 end
 ```
 
+You can find the detail configurations in the [rails 5 example app](https://github.com/allenwq/devise-multi_email/tree/master/examples/rails5_app)
+
 ## ActiveJob Integration
 
 The [devise readme](https://github.com/plataformatec/devise#activejob-integration) describes how to use ActiveJob to deliver emails in the background. Normally you would place the following code in your `User` model, however when using devise-multi_email you should place this in the `Email` model.
@@ -104,7 +107,7 @@ end
 
 The gem works with all other devise modules just as normal, you don't need to add the `multi_email` prefix.
 ```ruby
-  devise :multi_email_authenticatable, :multi_email_confirmable, :multi_email_validatable, :lockable, 
+  devise :multi_email_authenticatable, :multi_email_confirmable, :multi_email_validatable, :lockable,
          :recoverable, :registerable, :rememberable, :timeoutable, :trackable
 ```
 
@@ -130,4 +133,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

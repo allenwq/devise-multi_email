@@ -50,6 +50,8 @@ GEM
       railties (>= 4.1.0, < 5.1)
       responders
       warden (~> 1.2.3)
+    devise-encryptable (0.2.0)
+      devise (>= 2.1.0)
     devise-multi_email (1.0.5)
       devise
     erubis (2.7.0)
@@ -163,6 +165,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   devise
+  devise-encryptable
   devise-multi_email
   jbuilder (~> 2.5)
   jquery-rails

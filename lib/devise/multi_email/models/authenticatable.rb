@@ -33,7 +33,7 @@ module Devise
 
       # Gets the primary email record.
       def primary_email_record
-        valid_emails = emails.each.select do |email_record|
+        valid_emails = __send__(Devise::MultiEmail.emails_association_name).each.select do |email_record|
           !email_record.destroyed? && !email_record.marked_for_destruction?
         end
 
@@ -51,7 +51,7 @@ module Devise
       def email=(email)
         record = primary_email_record
         if email
-          record ||= emails.build
+          record ||= __send__(Devise::MultiEmail.emails_association_name).build
           record.email = email
           record.primary = true
         elsif email.nil? && record
@@ -71,9 +71,9 @@ module Devise
 
           if email && email.is_a?(String)
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(emails: { email: email })
+              reverse_merge(Devise::MultiEmail.emails_association_name => { email: email })
 
-            resource = joins(:emails).find_by(conditions)
+            resource = joins(Devise::MultiEmail.emails_association_name).find_by(conditions)
             resource.current_login_email = email if resource.respond_to?(:current_login_email=)
             resource
           else
@@ -91,7 +91,7 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(:emails).where(emails: {email: email.downcase}).first
+          joins(Devise::MultiEmail.emails_association_name).where(Devise::MultiEmail.emails_association_name => {email: email.downcase}).first
         end
       end
     end

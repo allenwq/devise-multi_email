@@ -81,7 +81,7 @@ module Devise
 
         def current_login_email_record
           if respond_to?(:current_login_email) && current_login_email
-            send(Devise::MultiEmail.emails_association_name).find_by(email: current_login_email)
+            __send__(Devise::MultiEmail.emails_association_name).find_by(email: current_login_email)
           end
         end
       end

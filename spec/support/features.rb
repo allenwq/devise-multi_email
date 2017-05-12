@@ -1,22 +1,19 @@
 module RailsTestHelpers
   def create_user(options={})
-    @user ||= begin
-      user = User.create!(
-          username: 'usertest',
-          email: options[:email] || "user_#{SecureRandom.hex}@test.com",
-          password: options[:password] || '12345678',
-          password_confirmation: options[:password] || '12345678',
-          created_at: Time.now.utc
-      )
-      user.primary_email_record.update_attribute(:confirmation_sent_at, options[:confirmation_sent_at]) if options[:confirmation_sent_at]
-      user.confirm unless options[:confirm] == false
-      user
-    end
+    user = User.create!(
+        username: 'usertest',
+        email: options[:email] || "user_#{SecureRandom.hex}@test.com",
+        password: options[:password] || '12345678',
+        password_confirmation: options[:password] || '12345678',
+        created_at: Time.now.utc
+    )
+    user.primary_email_record.update_attribute(:confirmation_sent_at, options[:confirmation_sent_at]) if options[:confirmation_sent_at]
+    user.confirm unless options[:confirm] == false
+    user
   end
 
   def create_email(user, options = {})
-    email = Email.create!(
-      user: user,
+    email = user._emails_association.create!(
       email: options[:email] || "user_#{SecureRandom.hex}@test.com",
       created_at: Time.now.utc
     )

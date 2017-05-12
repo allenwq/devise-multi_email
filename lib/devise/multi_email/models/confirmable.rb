@@ -11,7 +11,7 @@ module Devise
 
       module ClassReplacementMethods
         def allow_unconfirmed_access_for
-          0.day
+          0.days
         end
       end
     end
@@ -20,18 +20,25 @@ module Devise
       extend ActiveSupport::Concern
 
       included do
-        devise :confirmable
-        include InstanceReplacementMethods
-        extend ClassReplacementMethods
+        include Devise::MultiEmail::ParentModelExtensions
 
-        email_class.send :include, EmailConfirmable
+        devise :confirmable
+
+        include ConfirmableExtensions
       end
 
       def self.required_fields(klass)
         []
       end
 
-      module InstanceReplacementMethods
+      module ConfirmableExtensions
+        extend ActiveSupport::Concern
+
+        included do
+          _emails_association_class.send :include, EmailConfirmable
+        end
+
+        # delegate before creating overriding methods
         delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
                  :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
                  :reconfirmation_required?, :pending_reconfirmation?, to: :primary_email_record, allow_nil: true
@@ -58,7 +65,7 @@ module Devise
           end
         end
 
-        protected
+      protected
 
         # Overrides Devise::Models::Confirmable#postpone_email_change?
         def postpone_email_change?
@@ -77,26 +84,16 @@ module Devise
         def send_on_create_confirmation_instructions
         end
 
-        private
+      private
 
         def current_login_email_record
           if respond_to?(:current_login_email) && current_login_email
-            __send__(Devise::MultiEmail.emails_association_name).find_by(email: current_login_email)
+            _emails_association.find_by(email: current_login_email)
           end
         end
-      end
 
-      module ClassReplacementMethods
-        # Overrides Devise::Models::Confirmable.confirm_by_token
-        # Forward the logic to email.
-        def confirm_by_token(token)
-          email_class.confirm_by_token(token)
-        end
-
-        # Overrides Devise::Models::Confirmable.send_confirmation_instructions
-        # Forward the logic to email.
-        def send_confirmation_instructions(params)
-          email_class.send_confirmation_instructions(params)
+        module ClassMethods
+          delegate :confirm_by_token, :send_confirmation_instructions, to: :_emails_association_class, allow_nil: false
         end
       end
     end

@@ -5,12 +5,7 @@ module Devise
       USER_ASSOCIATION = Devise::MultiEmail.parent_association_name
 
       def devise_scope
-        user_association = self.class.reflect_on_association(Devise::MultiEmail.parent_association_name)
-        if user_association
-          user_association.class_name.constantize
-        else
-          raise "#{self.class.name}: Association :#{Devise::MultiEmail.parent_association_name} not found: Have you declared that ?"
-        end
+        self.class._parent_association_class
       end
     end
 
@@ -20,26 +15,17 @@ module Devise
       EMAILS_ASSOCIATION = Devise::MultiEmail.emails_association_name
 
       included do
+        include Devise::MultiEmail::ParentModelExtensions
+
         devise :database_authenticatable
 
         attr_accessor :current_login_email
 
-        email_class.send :include, EmailAuthenticatable
+        _emails_association_class.send :include, EmailAuthenticatable
       end
 
       def self.required_fields(klass)
         []
-      end
-
-      # Gets the primary email record.
-      def primary_email_record
-        valid_emails = __send__(Devise::MultiEmail.emails_association_name).each.select do |email_record|
-          !email_record.destroyed? && !email_record.marked_for_destruction?
-        end
-
-        result = valid_emails.find(&:primary?)
-        result ||= valid_emails.first
-        result
       end
 
       # Gets the primary email address of the user.
@@ -51,7 +37,7 @@ module Devise
       def email=(email)
         record = primary_email_record
         if email
-          record ||= __send__(Devise::MultiEmail.emails_association_name).build
+          record ||= _emails_association.build
           record.email = email
           record.primary = true
         elsif email.nil? && record
@@ -71,9 +57,9 @@ module Devise
 
           if email && email.is_a?(String)
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(Devise::MultiEmail.emails_association_name => { email: email })
+              reverse_merge(_emails_association_table_name => { email: email })
 
-            resource = joins(Devise::MultiEmail.emails_association_name).find_by(conditions)
+            resource = joins(_emails_association_name).find_by(conditions)
             resource.current_login_email = email if resource.respond_to?(:current_login_email=)
             resource
           else
@@ -81,17 +67,8 @@ module Devise
           end
         end
 
-        def email_class
-          email_association = reflect_on_association(Devise::MultiEmail.emails_association_name)
-          if email_association
-            email_association.class_name.constantize
-          else
-            raise "#{self.class.name}: Association :#{Devise::MultiEmail.emails_association_name} not found: It might because your declaration is after `devise :multi_email_confirmable`."
-          end
-        end
-
         def find_by_email(email)
-          joins(Devise::MultiEmail.emails_association_name).where(Devise::MultiEmail.emails_association_name => {email: email.downcase}).first
+          joins(_emails_association_name).where(_emails_association_table_name => {email: email.downcase}).first
         end
       end
     end

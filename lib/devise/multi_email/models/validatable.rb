@@ -58,7 +58,7 @@ module Devise
     private
 
       def propagate_email_errors
-        email_error_key = Devise::MultiEmail.emails_association_name
+        email_error_key = self.class._multi_email_emails_association_name
 
         if respond_to?("#{email_error_key}_attributes=")
           email_error_key = "#{email_error_key}.email".to_sym

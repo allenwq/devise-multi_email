@@ -53,12 +53,15 @@ create_table :emails do |t|
 
 You may not want to use the association `user.emails` or `email.users`. You can customize the name of the associations used.
 
-```ruby
-# Default is :user for Email model
-Devise::MultiEmail.parent_association_name = :team
+_Note: model classes are inferred from the associations._
 
-# Default is :emails for User model
-Devise::MultiEmail.emails_association_name = :email_addresses
+```ruby
+Devise::MultiEmail.configure do |config|
+  # Default is :user for Email model
+  config.parent_association_name = :team
+  # Default is :emails for parent (e.g. User) model
+  config.emails_association_name = :email_addresses
+end
 
 # Example use of custom association names
 team = Team.first

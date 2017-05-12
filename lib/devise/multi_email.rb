@@ -3,6 +3,11 @@ require 'devise'
 
 module Devise
   module MultiEmail
+
+    def self.configure(&block)
+      yield self
+    end
+
     def self.parent_association_name
       @parent_association_name ||= :user
     end

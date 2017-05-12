@@ -35,7 +35,7 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
-          _emails_association_class.send :include, EmailConfirmable
+          _multi_email_emails_association_class.send :include, EmailConfirmable
         end
 
         # delegate before creating overriding methods
@@ -88,12 +88,12 @@ module Devise
 
         def current_login_email_record
           if respond_to?(:current_login_email) && current_login_email
-            _emails_association.find_by(email: current_login_email)
+            _multi_email_emails_association.find_by(email: current_login_email)
           end
         end
 
         module ClassMethods
-          delegate :confirm_by_token, :send_confirmation_instructions, to: :_emails_association_class, allow_nil: false
+          delegate :confirm_by_token, :send_confirmation_instructions, to: :_multi_email_emails_association_class, allow_nil: false
         end
       end
     end

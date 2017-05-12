@@ -2,7 +2,7 @@ module Devise
   module Models
     module EmailAuthenticatable
       def devise_scope
-        self.class._parent_association_class
+        self.class._multi_email_parent_association_class
       end
     end
 
@@ -16,7 +16,7 @@ module Devise
 
         attr_accessor :current_login_email
 
-        _emails_association_class.send :include, EmailAuthenticatable
+        _multi_email_emails_association_class.send :include, EmailAuthenticatable
       end
 
       def self.required_fields(klass)
@@ -25,14 +25,14 @@ module Devise
 
       # Gets the primary email address of the user.
       def email
-        _find_or_build_primary_email.try(:email)
+        _multi_email_find_or_build_primary_email.try(:email)
       end
 
       # Sets the default email address of the user.
       def email=(email)
-        record = _find_or_build_primary_email
+        record = _multi_email_find_or_build_primary_email
         if email
-          record ||= _emails_association.build
+          record ||= _multi_email_emails_association.build
           record.email = email
           record.primary = true
         elsif email.nil? && record
@@ -42,7 +42,7 @@ module Devise
 
       # skip_confirmation on the users primary email
       def skip_confirmation!
-        _find_or_build_primary_email.skip_confirmation!
+        _multi_email_find_or_build_primary_email.skip_confirmation!
       end
 
       module ClassMethods
@@ -52,9 +52,9 @@ module Devise
 
           if email && email.is_a?(String)
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(_emails_association_table_name => { email: email })
+              reverse_merge(_multi_email_reflect_on_emails_association.table_name => { email: email })
 
-            resource = joins(_emails_association_name).find_by(conditions)
+            resource = joins(_multi_email_emails_association_name).find_by(conditions)
             resource.current_login_email = email if resource.respond_to?(:current_login_email=)
             resource
           else
@@ -63,7 +63,7 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(_emails_association_name).where(_emails_association_table_name => {email: email.downcase}).first
+          joins(_multi_email_emails_association_name).where(_multi_email_reflect_on_emails_association.table_name => {email: email.downcase}).first
         end
       end
     end

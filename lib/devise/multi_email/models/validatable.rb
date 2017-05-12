@@ -33,8 +33,8 @@ module Devise
         validates_length_of       :password, within: password_length, allow_blank: true
 
         after_validation :propagate_email_errors
-        
-        _emails_association_class.send :include, EmailValidatable
+
+        _multi_email_emails_association_class.send :include, EmailValidatable
 
         devise_modules << :validatable
       end

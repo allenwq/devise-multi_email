@@ -24,15 +24,25 @@ module Devise
       @emails_association_name = name.try(:to_sym)
     end
 
+    def self.primary_email_method_name
+      @primary_email_method_name ||= :primary_email
+    end
+
+    def self.primary_email_method_name=(name)
+      @primary_email_method_name = name.try(:to_sym)
+    end
+
     module ParentModelExtensions
       extend ActiveSupport::Concern
 
       included do
         _emails_association_class.send :include, EmailModelExtensions
+
+        alias_method _primary_email_method_name, :_find_or_build_primary_email
       end
 
       # Gets the primary email record.
-      def primary_email_record
+      def _find_or_build_primary_email
         valid_emails = _emails_association.each.select do |email_record|
           !email_record.destroyed? && !email_record.marked_for_destruction?
         end
@@ -66,6 +76,10 @@ module Devise
 
         def _emails_association_name
           Devise::MultiEmail.emails_association_name
+        end
+
+        def _primary_email_method_name
+          Devise::MultiEmail.primary_email_method_name
         end
       end
     end

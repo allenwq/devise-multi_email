@@ -30,12 +30,12 @@ module Devise
 
       # Gets the primary email address of the user.
       def email
-        primary_email_record.try(:email)
+        _find_or_build_primary_email.try(:email)
       end
 
       # Sets the default email address of the user.
       def email=(email)
-        record = primary_email_record
+        record = _find_or_build_primary_email
         if email
           record ||= _emails_association.build
           record.email = email
@@ -47,7 +47,7 @@ module Devise
 
       # skip_confirmation on the users primary email
       def skip_confirmation!
-        primary_email_record.skip_confirmation!
+        _find_or_build_primary_email.skip_confirmation!
       end
 
       module ClassMethods

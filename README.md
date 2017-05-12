@@ -51,7 +51,7 @@ create_table :emails do |t|
 
 ### Configure custom association names
 
-You may not want to use the association `user.emails` or `email.users`. You can customize the name of the associations used.
+You may not want to use the association `user.emails` or `email.users`. You can customize the name of the associations used. Add your custom configurations to an initializer file such as `config/initializers/devise-multi_email.rb`.
 
 _Note: model classes are inferred from the associations._
 
@@ -61,6 +61,9 @@ Devise::MultiEmail.configure do |config|
   config.parent_association_name = :team
   # Default is :emails for parent (e.g. User) model
   config.emails_association_name = :email_addresses
+  # For backwards-compatibility, specify :primary_email_record
+  # Default is :primary_email
+  config.primary_email_method_name = :primary_email_record
 end
 
 # Example use of custom association names

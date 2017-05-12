@@ -52,7 +52,7 @@ module Devise
 
         unless unavailable_validations.empty?
           raise "Could not use :validatable module since #{base} does not respond " <<
-                    "to the following methods: #{unavailable_validations.to_sentence}."
+                "to the following methods: #{unavailable_validations.to_sentence}."
         end
       end
 
@@ -71,8 +71,9 @@ module Devise
       private
 
       def propagate_email_errors
-        email_error_key = self.class::EMAILS_ASSOCIATION
-        if respond_to?("#{self.class::EMAILS_ASSOCIATION}_attributes=")
+        email_error_key = Devise::MultiEmail.emails_association_name
+
+        if respond_to?("#{email_error_key}_attributes=")
           email_error_key = "#{email_error_key}.email".to_sym
         end
 

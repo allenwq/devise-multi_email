@@ -1,9 +1,6 @@
 module Devise
   module Models
     module EmailAuthenticatable
-      # deprecated
-      USER_ASSOCIATION = Devise::MultiEmail.parent_association_name
-
       def devise_scope
         self.class._parent_association_class
       end
@@ -11,8 +8,6 @@ module Devise
 
     module MultiEmailAuthenticatable
       extend ActiveSupport::Concern
-      # deprecated
-      EMAILS_ASSOCIATION = Devise::MultiEmail.emails_association_name
 
       included do
         include Devise::MultiEmail::ParentModelExtensions

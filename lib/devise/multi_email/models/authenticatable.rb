@@ -12,37 +12,35 @@ module Devise
       included do
         include Devise::MultiEmail::ParentModelExtensions
 
-        devise :database_authenticatable
-
         attr_accessor :current_login_email
 
-        _multi_email_emails_association_class.send :include, EmailAuthenticatable
+        devise :database_authenticatable
+
+        include AuthenticatableExtensions
       end
 
       def self.required_fields(klass)
         []
       end
 
-      # Gets the primary email address of the user.
-      def email
-        _multi_email_find_or_build_primary_email.try(:email)
-      end
+      module AuthenticatableExtensions
+        extend ActiveSupport::Concern
 
-      # Sets the default email address of the user.
-      def email=(email)
-        record = _multi_email_find_or_build_primary_email
-        if email
-          record ||= _multi_email_emails_association.build
-          record.email = email
-          record.primary = true
-        elsif email.nil? && record
-          record.mark_for_destruction
+        included do
+          _multi_email_emails_association_class.send :include, EmailAuthenticatable
         end
-      end
 
-      # skip_confirmation on the users primary email
-      def skip_confirmation!
-        _multi_email_find_or_build_primary_email.skip_confirmation!
+        delegate :skip_confirmation!, to: :_multi_email_find_primary_email, allow_nil: false
+
+        # Gets the primary email address of the user.
+        def email
+          _multi_email_find_primary_email.try(:email)
+        end
+
+        # Sets the default email address of the user.
+        def email=(new_email)
+          _multi_email_change_email_address(new_email)
+        end
       end
 
       module ClassMethods

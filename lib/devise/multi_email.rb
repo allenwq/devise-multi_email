@@ -38,18 +38,50 @@ module Devise
       included do
         _multi_email_emails_association_class.send :include, EmailModelExtensions
 
-        alias_method _multi_email_primary_email_method_name, :_multi_email_find_or_build_primary_email
+        alias_method _multi_email_primary_email_method_name, :_multi_email_find_primary_email
       end
 
       # Gets the primary email record.
-      def _multi_email_find_or_build_primary_email
-        valid_emails = _multi_email_emails_association.each.select do |email_record|
-          !email_record.destroyed? && !email_record.marked_for_destruction?
+      def _multi_email_filtered_emails
+        _multi_email_emails_association.reject(&:destroyed?).reject(&:marked_for_destruction?)
+      end
+
+      # Gets the primary email record.
+      def _multi_email_find_primary_email
+        _multi_email_filtered_emails.find(&:primary?)
+      end
+
+      def _multi_email_change_email_address(email_address)
+        valid_emails = _multi_email_filtered_emails
+        formatted_email_address = self.class.send(:devise_parameter_filter).filter(email: email_address)[:email]
+
+        # mark none as primary when set to nil
+        if email_address.nil?
+          valid_emails.each{|record| record.primary = false}
+
+        # select or create an email
+        else
+          record = valid_emails.find{|record| record.email == formatted_email_address}
+
+          unless record
+            record = _multi_email_emails_association.build(email: formatted_email_address)
+            valid_emails << record
+          end
+
+          # toggle the selected record as primary and others as not
+          valid_emails.each{|other| other.primary = (other == record)}
         end
 
-        result = valid_emails.find(&:primary?)
-        result ||= valid_emails.first
-        result
+        # if new_email.present?
+        #   record ||= _multi_email_emails_association.build
+        #   record.email = new_email
+        #   # toggle primary to "true" for this record and "false" for the others
+        #   _multi_email_emails_association.each{|other| other.primary = (other == record)}
+        # elsif new_email.nil? && record
+        #   record.mark_for_destruction
+        # end
+
+        record
       end
 
       def _multi_email_emails_association

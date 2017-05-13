@@ -51,20 +51,20 @@ module Devise
         _multi_email_filtered_emails.find(&:primary?)
       end
 
-      def _multi_email_change_email_address(email_address)
+      def _multi_email_change_email_to(new_email)
         valid_emails = _multi_email_filtered_emails
-        formatted_email_address = self.class.send(:devise_parameter_filter).filter(email: email_address)[:email]
+        formatted_email = self.class.send(:devise_parameter_filter).filter(email: new_email)[:email]
 
         # mark none as primary when set to nil
-        if email_address.nil?
+        if new_email.nil?
           valid_emails.each{|record| record.primary = false}
 
         # select or create an email
         else
-          record = valid_emails.find{|record| record.email == formatted_email_address}
+          record = valid_emails.find{|record| record.email == formatted_email}
 
           unless record
-            record = _multi_email_emails_association.build(email: formatted_email_address)
+            record = _multi_email_emails_association.build(email: formatted_email)
             valid_emails << record
           end
 

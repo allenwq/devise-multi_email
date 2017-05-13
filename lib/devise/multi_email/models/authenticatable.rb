@@ -39,7 +39,7 @@ module Devise
 
         # Sets the default email address of the user.
         def email=(new_email)
-          _multi_email_change_email_address(new_email)
+          _multi_email_change_email_to(new_email)
         end
       end
 

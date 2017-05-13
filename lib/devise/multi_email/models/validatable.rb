@@ -64,7 +64,7 @@ module Devise
           email_error_key = "#{email_error_key}.email".to_sym
         end
 
-        return if (email_errors = errors.delete(email_error_key)).nil?
+        email_errors = errors.delete(email_error_key) || []
 
         email_errors.each do |error|
           errors.add(:email, error)

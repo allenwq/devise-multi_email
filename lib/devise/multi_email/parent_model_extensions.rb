@@ -21,7 +21,7 @@ module Devise
         _multi_email_filtered_emails.find(&:primary?)
       end
 
-      def _multi_email_change_email_to(new_email)
+      def _multi_email_change_primary_email_to(new_email)
         valid_emails = _multi_email_filtered_emails
         # Use Devise formatting settings for emails
         formatted_email = self.class.send(:devise_parameter_filter).filter(email: new_email)[:email]

@@ -33,9 +33,6 @@ module Devise
   end
 end
 
-require 'devise/multi_email/email_model_extensions'
-require 'devise/multi_email/parent_model_extensions'
-
 Devise.add_module :multi_email_authenticatable, model: 'devise/multi_email/models/authenticatable'
 Devise.add_module :multi_email_confirmable, model: 'devise/multi_email/models/confirmable'
 Devise.add_module :multi_email_validatable, model: 'devise/multi_email/models/validatable'

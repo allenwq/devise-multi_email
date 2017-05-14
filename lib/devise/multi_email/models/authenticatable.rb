@@ -1,3 +1,5 @@
+require 'devise/multi_email/parent_model_extensions'
+
 module Devise
   module Models
     module EmailAuthenticatable

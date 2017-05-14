@@ -36,7 +36,7 @@ module Devise
 
         after_validation :propagate_email_errors
 
-        _multi_email_emails_association_class.send :include, EmailValidatable
+        multi_email_association.include_module(EmailValidatable)
 
         devise_modules << :validatable
       end
@@ -60,7 +60,7 @@ module Devise
     private
 
       def propagate_email_errors
-        email_error_key = self.class._multi_email_emails_association_name
+        email_error_key = self.class.multi_email_association.name
 
         if respond_to?("#{email_error_key}_attributes=")
           email_error_key = "#{email_error_key}.email".to_sym

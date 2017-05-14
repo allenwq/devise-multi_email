@@ -4,7 +4,7 @@ module Devise
   module Models
     module EmailAuthenticatable
       def devise_scope
-        self.class._multi_email_parent_association_class
+        self.class.multi_email_association.model_class
       end
     end
 
@@ -29,19 +29,19 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
-          _multi_email_emails_association_class.send :include, EmailAuthenticatable
+          multi_email_association.include_module(EmailAuthenticatable)
         end
 
-        delegate :skip_confirmation!, to: :_multi_email_find_primary_email, allow_nil: false
+        delegate :skip_confirmation!, to: Devise::MultiEmail.primary_email_method_name, allow_nil: false
 
         # Gets the primary email address of the user.
         def email
-          _multi_email_find_primary_email.try(:email)
+          multi_email.primary_email.try(:email)
         end
 
         # Sets the default email address of the user.
         def email=(new_email)
-          _multi_email_change_primary_email_to(new_email)
+          multi_email.change_primary_email_to(new_email)
         end
       end
 
@@ -52,9 +52,9 @@ module Devise
 
           if email && email.is_a?(String)
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(_multi_email_reflect_on_emails_association.table_name => { email: email })
+              reverse_merge(multi_email_association.reflection.table_name => { email: email })
 
-            resource = joins(_multi_email_emails_association_name).find_by(conditions)
+            resource = joins(multi_email_association.name).find_by(conditions)
             resource.current_login_email = email if resource.respond_to?(:current_login_email=)
             resource
           else
@@ -63,7 +63,7 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(_multi_email_emails_association_name).where(_multi_email_reflect_on_emails_association.table_name => { email: email.downcase }).first
+          joins(multi_email_association.name).where(multi_email_association.reflection.table_name => { email: email.downcase }).first
         end
       end
     end

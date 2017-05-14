@@ -61,7 +61,7 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(_multi_email_emails_association_name).where(_multi_email_reflect_on_emails_association.table_name => {email: email.downcase}).first
+          joins(_multi_email_emails_association_name).where(_multi_email_reflect_on_emails_association.table_name => { email: email.downcase }).first
         end
       end
     end

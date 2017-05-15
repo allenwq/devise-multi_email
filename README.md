@@ -61,9 +61,8 @@ Devise::MultiEmail.configure do |config|
   config.parent_association_name = :team
   # Default is :emails for parent (e.g. User) model
   config.emails_association_name = :email_addresses
-  # For backwards-compatibility, specify :primary_email_record
-  # Default is :primary_email
-  config.primary_email_method_name = :primary_email_record
+  # Default is :primary_email_record
+  config.primary_email_method_name = :primary_email
 end
 
 # Example use of custom association names

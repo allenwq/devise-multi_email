@@ -16,10 +16,10 @@ module Devise
       end
 
       # Gets the primary email record.
-      def primary_email
+      def primary_email_record
         filtered_emails.find(&:primary?)
       end
-      alias_method Devise::MultiEmail.primary_email_method_name, :primary_email
+      alias_method Devise::MultiEmail.primary_email_method_name, :primary_email_record
 
       def change_primary_email_to(new_email)
         # Use Devise formatting settings for emails

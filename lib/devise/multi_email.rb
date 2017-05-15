@@ -24,7 +24,7 @@ module Devise
     end
 
     def self.primary_email_method_name
-      @primary_email_method_name ||= :primary_email
+      @primary_email_method_name ||= :primary_email_record
     end
 
     def self.primary_email_method_name=(name)

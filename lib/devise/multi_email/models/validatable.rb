@@ -61,12 +61,8 @@ module Devise
 
       def propagate_email_errors
         email_error_key = self.class.multi_email_association.name
-
-        if respond_to?("#{email_error_key}_attributes=")
-          email_error_key = "#{email_error_key}.email".to_sym
-        end
-
-        email_errors = errors.delete(email_error_key) || []
+        email_errors = errors.delete(email_error_key) ||
+                       errors.delete("#{email_error_key}.email".to_sym) || []
 
         email_errors.each do |error|
           errors.add(:email, error)

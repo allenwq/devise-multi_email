@@ -7,6 +7,16 @@ module Devise
       yield self
     end
 
+    @only_login_with_primary_email = false
+
+    def self.only_login_with_primary_email
+      @only_login_with_primary_email
+    end
+
+    def self.only_login_with_primary_email=(value)
+      @only_login_with_primary_email = (value == true)
+    end
+
     def self.parent_association_name
       @parent_association_name ||= :user
     end

@@ -25,9 +25,9 @@ RSpec.describe 'Authenticatable', type: :feature do
         fill_in 'user_email', with: secondary_email.email
         fill_in 'user_password', with: '12345678'
         click_button 'Log in'
-
+        
         expect(current_path).to eq root_path
-        expect(page).to have_selector('div', 'You are now signed in.')
+        expect(page).to have_selector('div', text: 'Signed in successfully.')
       end
     end
 

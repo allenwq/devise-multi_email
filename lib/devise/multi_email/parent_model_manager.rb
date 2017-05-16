@@ -100,7 +100,7 @@ module Devise
       # and the `email` and `unconfirmed_email` changes should be handled specially.
       # See `change_primary_email_to`
       def switching_to_unconfirmed_email?
-        @parent_record.currently_confirming?
+        @parent_record.try(:currently_confirming?) == true
       end
 
       # Use Devise formatting settings for emails

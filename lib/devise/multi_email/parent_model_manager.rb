@@ -69,9 +69,13 @@ module Devise
           elsif switch_to_unconfirmed
             set_primary_record_to(record, skip_confirmations: true)
           else
-            # NOTE: There shouldn't be a non-primary email that is not confirmed...?
-            # TODO: Handle scenario where email is added to the `emails` association directly,
-            #       side-stepping the parent model.
+            # NOTE: The only way to have non-primary emails which are not confirmed
+            #       is to create them directly in the `emails` association of the parent.
+            #       As of right now, the fact this email is specified is ignored and
+            #       nothing is done to the record. Assume it's managed manually.
+            # TODO: Determine if we allow to make unconfirmed emails already in the
+            #       `emails` association the primary email. This would mean login would
+            #       ask the user to confirm their email first....
           end
         end
 

@@ -10,6 +10,9 @@ module Devise
       included do
         multi_email_association.configure_autosave!
         multi_email_association.include_module(EmailModelExtensions)
+
+        # Enable "autosave" to ensure email record changes are persisted
+        multi_email_association.reflection.options.merge!(autosave: true)
       end
 
       delegate :email_was, :email_in_database, :email_changed?, :will_save_change_to_email?, to: :primary_email_record

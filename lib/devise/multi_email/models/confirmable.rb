@@ -54,7 +54,9 @@ module Devise
 
         delegate :unconfirmed_email, :confirmation_token, :confirmation_token=,
                  :confirmed_at, :confirmed_at=, :confirmation_sent_at, :confirmation_sent_at=,
-                 to: 'multi_email.primary_email_record', allow_nil: true
+                 to: 'multi_email.current_email_record', allow_nil: true
+
+        delegate :active_for_authentication?, to: 'multi_email.current_email_record', allow_nil: false
 
         # Override to reset flag indicating if email change was postponed.
         # (Used in `before_commit` hook to handle confirming `unconfirmed_email`)

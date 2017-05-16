@@ -7,6 +7,8 @@
 * Changed logic when changing an email address to mark all others as `primary = false`
 * Changed logic when changing an email address to `nil` to mark as `primary = false` rather than deleting records
 
+Many thanks to [joelvh](https://github.com/joelvh) for the great work!
+
 ### 1.0.5 - 2016-12-29
 
 * New `.find_by_email` method. Thanks to [mrjlynch](https://github.com/mrjlynch).

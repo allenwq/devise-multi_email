@@ -13,7 +13,7 @@ module RailsTestHelpers
   end
 
   def create_email(user, options = {})
-    email = user.multi_email.emails.create!(
+    email = user.emails.create!(
       email: options[:email] || "user_#{SecureRandom.hex}@test.com",
       created_at: Time.now.utc
     )

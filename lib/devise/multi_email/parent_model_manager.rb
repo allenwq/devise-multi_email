@@ -19,8 +19,7 @@ module Devise
       end
 
       def login_email_record
-        unless @parent_record.try(:current_login_email).blank?
-          # Use Devise formatting settings for emails
+        if @parent_record.try(:current_login_email)
           formatted_email = format_email(@parent_record.current_login_email)
 
           filtered_emails.find{ |item| item.email == formatted_email }

@@ -48,14 +48,14 @@ module Devise
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
           filtered_conditions = devise_parameter_filter.filter(tainted_conditions.dup)
-          email = filtered_conditions.delete(:email)
+          criteria = filtered_conditions.extract!(:email, :unconfirmed_email)
 
-          if email && email.is_a?(String)
+          if criteria.keys.any?
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(multi_email_association.reflection.table_name => { email: email })
+              reverse_merge(build_conditions criteria)
 
             resource = joins(multi_email_association.name).find_by(conditions)
-            resource.current_login_email = email if resource.respond_to?(:current_login_email=)
+            resource.current_login_email = criteria.values.first if resource.respond_to?(:current_login_email=)
             resource
           else
             super(tainted_conditions, opts)
@@ -63,7 +63,17 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(multi_email_association.name).where(multi_email_association.reflection.table_name => { email: email.downcase }).first
+          joins(multi_email_association.name).where(build_conditions email: email).first
+        end
+
+        def build_conditions(criteria)
+          criteria = devise_parameter_filter.filter(criteria)
+          # match the primary email record if the `unconfirmed_email` column is specified
+          if Devise::MultiEmail.only_login_with_primary_email || criteria[:unconfirmed_email]
+            criteria.merge!(primary: true)
+          end
+
+          { multi_email_association.reflection.table_name.to_sym => criteria }
         end
       end
     end

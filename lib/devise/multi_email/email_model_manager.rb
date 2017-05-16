@@ -4,14 +4,12 @@ module Devise
   module MultiEmail
     class EmailModelManager
 
-      attr_reader :record
-
-      def initialize(record)
-        @record = record
+      def initialize(email_record)
+        @email_record = email_record
       end
 
       def parent
-        record.__send__(record.class.multi_email_association.name)
+        @email_record.__send__(@email_record.class.multi_email_association.name)
       end
     end
   end

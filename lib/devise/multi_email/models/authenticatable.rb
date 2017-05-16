@@ -55,7 +55,7 @@ module Devise
               reverse_merge(build_conditions criteria)
 
             resource = joins(multi_email_association.name).find_by(conditions)
-            resource.current_login_email = criteria.values.first if resource.respond_to?(:current_login_email=)
+            resource.try(:current_login_email=, criteria.values.first)
             resource
           else
             super(tainted_conditions, opts)

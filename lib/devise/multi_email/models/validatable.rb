@@ -1,14 +1,14 @@
+require 'devise/multi_email/parent_model_extensions'
+
 module Devise
   module Models
     module EmailValidatable
-      def self.included(base)
-        base.extend ClassMethods
+      extend ActiveSupport::Concern
 
-        base.class_eval do
-          validates_presence_of   :email, if: :email_required?
-          validates_uniqueness_of :email, allow_blank: true, if: :email_changed?
-          validates_format_of     :email, with: email_regexp, allow_blank: true, if: :email_changed?
-        end
+      included do
+        validates_presence_of   :email, if: :email_required?
+        validates_uniqueness_of :email, allow_blank: true, if: :email_changed?
+        validates_format_of     :email, with: email_regexp, allow_blank: true, if: :email_changed?
       end
 
       def email_required?
@@ -21,42 +21,31 @@ module Devise
     end
 
     module MultiEmailValidatable
+      extend ActiveSupport::Concern
+
+      included do
+        include Devise::MultiEmail::ParentModelExtensions
+
+        assert_validations_api!(self)
+
+        validates_presence_of     :email, if: :email_required?
+
+        validates_presence_of     :password, if: :password_required?
+        validates_confirmation_of :password, if: :password_required?
+        validates_length_of       :password, within: password_length, allow_blank: true
+
+        after_validation :propagate_email_errors
+
+        multi_email_association.include_module(EmailValidatable)
+
+        devise_modules << :validatable
+      end
+
       def self.required_fields(klass)
         []
       end
 
-      # All validations used by this module.
-      VALIDATIONS = [:validates_presence_of, :validates_uniqueness_of, :validates_format_of,
-                     :validates_confirmation_of, :validates_length_of].freeze
-
-      def self.included(base)
-        base.extend ClassMethods
-        assert_validations_api!(base)
-
-        base.class_eval do
-          validates_presence_of     :email, if: :email_required?
-
-          validates_presence_of     :password, if: :password_required?
-          validates_confirmation_of :password, if: :password_required?
-          validates_length_of       :password, within: password_length, allow_blank: true
-
-          after_validation :propagate_email_errors
-          email_class.send :include, EmailValidatable
-        end
-
-        base.devise_modules << :validatable
-      end
-
-      def self.assert_validations_api!(base) #:nodoc:
-        unavailable_validations = VALIDATIONS.select { |v| !base.respond_to?(v) }
-
-        unless unavailable_validations.empty?
-          raise "Could not use :validatable module since #{base} does not respond " <<
-                    "to the following methods: #{unavailable_validations.to_sentence}."
-        end
-      end
-
-      protected
+    protected
 
       # Same as Devise::Models::Validatable#password_required?
       def password_required?
@@ -68,15 +57,16 @@ module Devise
         true
       end
 
-      private
+    private
 
       def propagate_email_errors
-        email_error_key = self.class::EMAILS_ASSOCIATION
-        if respond_to?("#{self.class::EMAILS_ASSOCIATION}_attributes=")
+        email_error_key = self.class.multi_email_association.name
+
+        if respond_to?("#{email_error_key}_attributes=")
           email_error_key = "#{email_error_key}.email".to_sym
         end
 
-        return if (email_errors = errors.delete(email_error_key)).nil?
+        email_errors = errors.delete(email_error_key) || []
 
         email_errors.each do |error|
           errors.add(:email, error)
@@ -84,6 +74,20 @@ module Devise
       end
 
       module ClassMethods
+
+        # All validations used by this module.
+        VALIDATIONS = [:validates_presence_of, :validates_uniqueness_of, :validates_format_of,
+                       :validates_confirmation_of, :validates_length_of].freeze
+
+        def assert_validations_api!(base) #:nodoc:
+          unavailable_validations = VALIDATIONS.select{ |v| !base.respond_to?(v) }
+
+          unless unavailable_validations.empty?
+            raise "Could not use :validatable module since #{base} does not respond " <<
+                  "to the following methods: #{unavailable_validations.to_sentence}."
+          end
+        end
+
         Devise::Models.config(self, :password_length)
       end
     end

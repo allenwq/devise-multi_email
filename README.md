@@ -49,6 +49,15 @@ create_table :emails do |t|
  end
 ```
 
+You can choose whether or not users can login with an email address that is not the primary email address.
+
+```ruby
+Devise::MultiEmail.configure do |config|
+  # Default is `false`
+  config.only_login_with_primary_email = true
+end
+```
+
 ### Configure custom association names
 
 You may not want to use the association `user.emails` or `email.users`. You can customize the name of the associations used. Add your custom configurations to an initializer file such as `config/initializers/devise-multi_email.rb`.

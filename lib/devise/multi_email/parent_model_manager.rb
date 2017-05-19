@@ -63,10 +63,9 @@ module Devise
         record || emails.build(email: formatted_email)
       end
 
-      # See if any of the unconfirmed emails was recently created.
-      # Could probably also check `persisted?`
-      def was_email_changed?
-        !unconfirmed_email.all?(&:persisted?) || unconfirmed_email.any?(&:changed?)
+      # See if any of the unconfirmed emails was recently created or changed.
+      def unconfirmed_email_changes?
+        !unconfirmed_emails.all?(&:persisted?) || unconfirmed_emails.any?(&:changed?)
       end
 
       # Indicates if `confirm` is currently being called on the parent model

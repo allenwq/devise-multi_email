@@ -33,6 +33,8 @@ module Devise
           multi_email_association.include_module(EmailAuthenticatable)
         end
 
+        delegate :active_for_authentication?, to: 'multi_email.current_email_record', allow_nil: false
+
         # Gets the primary email address of the user.
         def email
           multi_email.current_email_record.try(:email)

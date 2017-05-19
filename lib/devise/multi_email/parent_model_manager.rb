@@ -9,8 +9,8 @@ module Devise
       end
 
       def before_commit_confirm_unconfirmed_email_when_not_postponed
-        if !@parent_record.postponed_email_change? && primary_email_record.unconfirmed_email.present?
-          change_primary_email_to(primary_email_record.unconfirmed_email, switching_to_unconfirmed_email: true)
+        if !@parent_record.postponed_email_change? && unconfirmed_email_record && !unconfirmed_email_record.persisted?
+          set_primary_record_to(unconfirmed_email_record, skip_confirmations: true)
         end
       end
 
@@ -24,6 +24,11 @@ module Devise
 
           filtered_emails.find{ |item| item.email == formatted_email }
         end
+      end
+
+      def unconfirmed_email_record
+        unconfirmed_emails.first(&:new_record?) ||
+        unconfirmed_emails.first
       end
 
       # Gets the primary email record.
@@ -49,24 +54,22 @@ module Devise
         end
 
         formatted_email = format_email(new_email)
-        record = filtered_emails.find{ |item| item.email == formatted_email }
-        # This allows us to presume the `new_email` is the unconfirmed email
-        switch_to_unconfirmed = switching_to_unconfirmed_email? || options[:switching_to_unconfirmed_email]
+        record          = filtered_emails.find{ |item| item.email == formatted_email }
 
         if record.nil?
           if primary_email_record.nil? || options[:force_primary]
             set_primary_record_to(emails.build(email: formatted_email))
-          elsif switch_to_unconfirmed
+          elsif switching_to_unconfirmed_email?
             set_primary_record_to(emails.build(email: formatted_email), skip_confirmations: true)
           else
             # always create a new "unconfirmed email" record to make sure
             # `email_was` delegation always has a change when Devise needs it
-            change_unconfirmed_email_to(new_email)
+            emails.build(email: formatted_email)
           end
         elsif record != primary_email_record
           if record.confirmed? || options[:force_primary]
             set_primary_record_to(record)
-          elsif switch_to_unconfirmed
+          elsif switching_to_unconfirmed_email?
             set_primary_record_to(record, skip_confirmations: true)
           else
             # NOTE: The only way to have non-primary emails which are not confirmed
@@ -82,22 +85,11 @@ module Devise
         new_email
       end
 
-      def change_unconfirmed_email_to(new_email)
-        # Don't change anything when the "postpone" feature tries to swap `email` and `unconfirmed_email`.
-        # Set `unconfirmed_email` on all email records to the same value to retain the unconfirmed email
-        # when the primary record changes.
-        unless @parent_record.try(:currently_postponing_email_change?)
-          emails.each{ |item| item.unconfirmed_email = new_email }
-        end
-
-        new_email
-      end
-
-      # Use `unconfirmed_email` as surrogate on parent model to indicate if email was changed,
-      # which can trigger the postpone email change functionaliy.
+      # See if any of the unconfirmed emails was recently created.
+      # Could probably also check `persisted?`
       def was_email_changed?
-        !!(primary_email_record.try(:unconfirmed_email_changed?) ||
-           primary_email_record.try(:will_save_change_to_unconfirmed_email?))
+        #unconfirmed_email.any?(&:email_changed?) rescue unconfirmed_email.any?(&:will_save_change_to_email?)
+        !unconfirmed_email.all?(&:persisted?)
         end
 
       # Indicates if `confirm` is currently being called on the parent model
@@ -105,6 +97,11 @@ module Devise
       # See `change_primary_email_to`
       def switching_to_unconfirmed_email?
         @parent_record.try(:currently_confirming?) == true
+      end
+
+      # See if any of the unconfirmed emails was recently created or changed.
+      def unconfirmed_email_changes?
+        !unconfirmed_emails.all?(&:persisted?) || unconfirmed_emails.any?(&:changed?)
       end
 
       # Use Devise formatting settings for emails
@@ -130,9 +127,16 @@ module Devise
         emails.lazy.reject(&:destroyed?).reject(&:marked_for_destruction?).to_a
       end
 
+      # Returns non-primary unconfirmed records.
+      # Primary is excluded because presumably you will not
+      # have any additional "unconfirmed" emails until the primary
+      # email is confirmed.
+      def unconfirmed_emails
+        filtered_emails.lazy.reject(&:primary?).reject(&:confirmed?).to_a
+      end
+
       # :skip_confirmations option confirms this email record (without saving)
       def set_primary_record_to(record, options = {})
-        change_unconfirmed_email_to(nil) if options[:reset_unconfirmed] != false
         # Toggle primary flag for all emails
         filtered_emails.each{ |other| other.primary = (other.email == record.email) }
 

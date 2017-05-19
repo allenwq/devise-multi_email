@@ -52,10 +52,11 @@ module Devise
           end
         end
 
-        delegate :unconfirmed_email, :confirmation_token, :confirmation_token=,
+        delegate :confirmation_token, :confirmation_token=,
                  :confirmed_at, :confirmed_at=, :confirmation_sent_at, :confirmation_sent_at=,
                  to: 'multi_email.current_email_record', allow_nil: true
 
+        delegate :email_changed?, :will_save_change_to_email?, to: 'multi_email.unconfirmed_email_record', allow_nil: true
 
         # Override to reset flag indicating if email change was postponed.
         # (Used in `before_commit` hook to handle confirming `unconfirmed_email`)
@@ -80,7 +81,6 @@ module Devise
 
         # Override to set flags that indicate postpone-email-change is currently happening.
         # See `multi_email#change_primary_email_to`
-        # See `multi_email#change_unconfirmed_email_to`
         def postpone_email_change_until_confirmation_and_regenerate_confirmation_token
           @currently_postponing_email_change = true
             super
@@ -92,7 +92,7 @@ module Devise
         # See `multi_email#switching_to_unconfirmed_email?`
         def confirm(*args)
           @currently_confirming = true
-            super
+          super
         ensure
           @currently_confirming = false
         end
@@ -109,18 +109,12 @@ module Devise
           multi_email.change_primary_email_to(new_email, force_primary: false)
         end
 
+        def unconfirmed_email
+          multi_email.unconfirmed_email_record.try(:email)
+        end
+
         def unconfirmed_email=(value)
-          multi_email.change_unconfirmed_email_to(value)
-        end
-
-        # Used to indicate if email changes should be posponed (Rails >= 5)
-        def will_save_change_to_email?
-          multi_email.was_email_changed?
-        end
-
-        # Used to indicate if email changes should be postponed (Rails < 5)
-        def email_changed?
-          multi_email.was_email_changed?
+          multi_email.change_primary_email_to(value)
         end
 
       private

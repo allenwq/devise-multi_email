@@ -66,9 +66,8 @@ module Devise
       # See if any of the unconfirmed emails was recently created.
       # Could probably also check `persisted?`
       def was_email_changed?
-        #unconfirmed_email.any?(&:email_changed?) rescue unconfirmed_email.any?(&:will_save_change_to_email?)
-        !unconfirmed_email.all?(&:persisted?)
-        end
+        !unconfirmed_email.all?(&:persisted?) || unconfirmed_email.any?(&:changed?)
+      end
 
       # Indicates if `confirm` is currently being called on the parent model
       # and the `email` and `unconfirmed_email` changes should be handled specially.
@@ -104,7 +103,7 @@ module Devise
       def filtered_emails
         emails.lazy.reject(&:destroyed?).reject(&:marked_for_destruction?).to_a
       end
-
+      
       # Returns non-primary unconfirmed records.
       # Primary is excluded because presumably you will not
       # have any additional "unconfirmed" emails until the primary

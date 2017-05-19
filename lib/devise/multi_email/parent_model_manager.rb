@@ -8,12 +8,6 @@ module Devise
         @parent_record = parent_record
       end
 
-      def before_commit_confirm_unconfirmed_email_when_not_postponed
-        if !@parent_record.postponed_email_change? && unconfirmed_email_record && unconfirmed_email_record.new_record?
-          set_primary_record_to(unconfirmed_email_record, skip_confirmations: true)
-        end
-      end
-
       def current_email_record
         login_email_record || primary_email_record
       end
@@ -43,14 +37,13 @@ module Devise
         # mark none as primary when set to nil
         if new_email.nil?
           filtered_emails.each{ |item| item.primary = false }
-          return
-        end
+        else
+          # finds a record or creates an unconfirmed one
+          record = find_or_build_for_email(new_email)
 
-        # finds a record or creates an unconfirmed one
-        record = find_or_build_for_email(new_email)
-
-        if record.confirmed? || primary_email_record.nil? || options[:force_primary]
-          set_primary_record_to(record, options)
+          if record.confirmed? || primary_email_record.nil? || options[:force_primary]
+            set_primary_record_to(record, options)
+          end
         end
 
         new_email

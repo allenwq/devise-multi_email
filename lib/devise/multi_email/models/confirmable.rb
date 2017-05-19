@@ -40,7 +40,14 @@ module Devise
           multi_email_association.include_module(EmailConfirmable)
 
           # Handle automatically confirming and linking `unconfirmed_email` if email change is not postponed
-          before_update{ multi_email.before_commit_confirm_unconfirmed_email_when_not_postponed }
+          before_update do
+            if !postponed_email_change? && multi_email.unconfirmed_email_changes?
+              multi_email.set_primary_record_to(
+                multi_email.unconfirmed_email_record,
+                skip_confirmations: true
+              )
+            end
+          end
 
           # Don't send notifications when the email records are saved
           # when saving the parent record.

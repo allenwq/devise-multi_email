@@ -45,10 +45,10 @@ module Devise
           # Don't send notifications when the email records are saved
           # when saving the parent record.
           if respond_to?(:after_commit)
-            after_commit(prepend: true){ multi_email.primary_email_record.skip_confirmation_notification! }
+            after_commit(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
           else # Mongoid
-            after_create(prepend: true){ multi_email.primary_email_record.skip_confirmation_notification! }
-            after_update(prepend: true){ multi_email.primary_email_record.skip_confirmation_notification! }
+            after_create(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
+            after_update(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
           end
         end
 

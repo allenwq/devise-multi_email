@@ -49,8 +49,11 @@ module Devise
             end
           end
 
-          # Don't send notifications when the email records are saved
-          # when saving the parent record.
+          # When changing the email address on the parent record, the default Devise
+          # lifecycle will take care of sending a confirmation email. This callback
+          # prevents sending the notification emails again for each Email record.
+          # *NOTE* This does not confirm the emails, it simply skips sending a
+          # confirmation email.
           if respond_to?(:after_commit)
             after_commit(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
           else # Mongoid

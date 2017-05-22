@@ -38,8 +38,8 @@ module Devise
         if new_email.nil?
           filtered_emails.each{ |item| item.primary = false }
         else
-          # finds a record or creates an unconfirmed one
-          record = find_or_build_for_email(new_email)
+        # finds a record or creates an unconfirmed one
+        record = find_or_build_for_email(new_email)
 
           if record.confirmed? || primary_email_record.nil? || options[:force_primary]
             set_primary_record_to(record, options)

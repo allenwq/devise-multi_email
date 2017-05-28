@@ -49,13 +49,6 @@ module Devise
         new_email
       end
 
-      def find_or_build_for_email(email)
-        formatted_email = format_email(email)
-        record = filtered_emails.find{ |item| item.email == formatted_email }
-
-        record || emails.build(email: formatted_email)
-      end
-
       # See if any of the unconfirmed emails was recently created or changed.
       def unconfirmed_email_changes?
         !unconfirmed_emails.all?(&:persisted?) || unconfirmed_emails.any?(&:changed?)

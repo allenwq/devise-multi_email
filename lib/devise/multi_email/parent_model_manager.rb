@@ -33,10 +33,7 @@ module Devise
 
         # select or build an email record
         else
-          formatted_email = format_email(new_email)
-
-          record = filtered_emails.find{ |item| item.email == formatted_email }
-          record ||= emails.build(email: formatted_email)
+          record = find_or_build_for_email(new_email)
 
           # toggle the selected record as primary and others as not
           filtered_emails.each{ |other| other.primary = (other == record) }
@@ -48,6 +45,13 @@ module Devise
       # Use Devise formatting settings for emails
       def format_email(email)
         @parent_record.class.__send__(:devise_parameter_filter).filter(email: email)[:email]
+      end
+
+      def find_or_build_for_email(email)
+        formatted_email = format_email(email)
+        record = filtered_emails.find{ |item| item.email == formatted_email }
+
+        record || emails.build(email: formatted_email)
       end
 
       def emails

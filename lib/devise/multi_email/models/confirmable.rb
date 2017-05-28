@@ -47,7 +47,7 @@ module Devise
 
         # This need to be forwarded to the email that the user logged in with
         def active_for_authentication?
-          login_email = current_login_email_record
+          login_email = multi_email.login_email_record
 
           if login_email && !login_email.primary?
             super && login_email.active_for_authentication?
@@ -58,7 +58,7 @@ module Devise
 
         # Shows email not confirmed instead of account inactive when the email that user used to login is not confirmed
         def inactive_message
-          login_email = current_login_email_record
+          login_email = multi_email.login_email_record
 
           if login_email && !login_email.primary? && !login_email.confirmed?
             :unconfirmed
@@ -87,12 +87,6 @@ module Devise
         end
 
       private
-
-        def current_login_email_record
-          if respond_to?(:current_login_email) && current_login_email
-            multi_email.emails.find_by(email: current_login_email)
-          end
-        end
 
         module ClassMethods
           delegate :confirm_by_token, :send_confirmation_instructions, to: 'multi_email_association.model_class', allow_nil: false

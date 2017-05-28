@@ -40,8 +40,7 @@ module Devise
         else
           record = find_or_build_for_email(new_email)
 
-          # toggle the selected record as primary and others as not
-          filtered_emails.each{ |other| other.primary = (other == record) }
+          set_primary_record_to(record)
         end
 
         record
@@ -81,6 +80,18 @@ module Devise
       # email is confirmed.
       def unconfirmed_emails
         filtered_emails.lazy.reject(&:primary?).reject(&:confirmed?).to_a
+      end
+
+      def set_primary_record_to(record, options = {})
+        options = {skip_confirmations: false}.merge(options)
+
+        # Toggle primary flag for all emails
+        filtered_emails.each{ |other| other.primary = (other.email == record.email) }
+
+        if options[:skip_confirmations]
+          record.skip_confirmation!
+          record.skip_reconfirmation!
+        end
       end
     end
   end

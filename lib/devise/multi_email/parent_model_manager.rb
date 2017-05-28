@@ -34,8 +34,8 @@ module Devise
       # If an email address does not exist, it's stored as `unconfirmed_email`.
       # Once confirmed, it gets added to the list of alternate emails.
       def change_primary_email_to(new_email, options = {})
-        # mark none as primary when set to nil
         if new_email.nil?
+          # mark none as primary when set to nil
           filtered_emails.each{ |item| item.primary = false }
         else
         # finds a record or creates an unconfirmed one

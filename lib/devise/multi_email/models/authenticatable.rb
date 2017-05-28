@@ -91,7 +91,7 @@ module Devise
         def build_conditions(criteria)
           criteria = devise_parameter_filter.filter(criteria)
           if criteria[:unconfirmed_email]
-            # Match unconfirmed email records with `created_at = nil`
+            # Match unconfirmed email records with `confirmed_at = nil`
             criteria.merge!(primary: false, confirmed_at: nil, email: criteria.delete(:unconfirmed_email))
           elsif Devise::MultiEmail.only_login_with_primary_email
             criteria.merge!(primary: true)

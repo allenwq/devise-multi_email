@@ -102,7 +102,7 @@ module Devise
 
         # Override to set flags that indicate confirmation is currently happening.
         # See `multi_email#switching_to_unconfirmed_email?`
-        def confirm(*args)
+        def confirm(*)
           @currently_confirming = true
           super
         ensure

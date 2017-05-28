@@ -1,4 +1,4 @@
-### 2.1.0 - 2017-05-16
+### 2.0.1 - 2017-05-16
 
 * Added `Devise::MultiEmail.only_login_with_primary_email` option to restrict login to only primary emails
 * Refactored to hook into Devise lifecycle more closely, without disabling default functionality out-of-the-box

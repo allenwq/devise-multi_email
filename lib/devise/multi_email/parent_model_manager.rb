@@ -20,6 +20,11 @@ module Devise
         end
       end
 
+      def unconfirmed_email_record
+        unconfirmed_emails.first(&:new_record?) ||
+        unconfirmed_emails.first
+      end
+
       # Gets the primary email record.
       def primary_email_record
         filtered_emails.find(&:primary?)
@@ -40,6 +45,11 @@ module Devise
         end
 
         record
+      end
+
+      # See if any of the unconfirmed emails was recently created or changed.
+      def unconfirmed_email_changes?
+        !unconfirmed_emails.all?(&:persisted?) || unconfirmed_emails.any?(&:changed?)
       end
 
       # Use Devise formatting settings for emails
@@ -63,6 +73,14 @@ module Devise
       # Gets the email records that have not been deleted
       def filtered_emails
         emails.lazy.reject(&:destroyed?).reject(&:marked_for_destruction?).to_a
+      end
+
+      # Returns non-primary unconfirmed records.
+      # Primary is excluded because presumably you will not
+      # have any additional "unconfirmed" emails until the primary
+      # email is confirmed.
+      def unconfirmed_emails
+        filtered_emails.lazy.reject(&:primary?).reject(&:confirmed?).to_a
       end
     end
   end

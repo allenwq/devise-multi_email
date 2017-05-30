@@ -52,7 +52,7 @@ module Devise
 
           if criteria.keys.any?
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(build_conditions criteria)
+              reverse_merge(build_conditions(criteria))
 
             resource = joins(multi_email_association.name).find_by(conditions)
             resource.current_login_email = criteria.values.first if resource

@@ -17,6 +17,9 @@ RSpec.describe 'Authenticatable', type: :feature do
     end
 
     context 'with non-primary email' do
+      before do
+        Devise::MultiEmail.only_login_with_primary_email = false
+      end
       after do
         Devise::MultiEmail.only_login_with_primary_email = false
       end

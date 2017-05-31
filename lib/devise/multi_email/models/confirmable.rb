@@ -62,6 +62,9 @@ module Devise
             after_create(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
             after_update(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
           end
+
+          alias_method :email_in_database, :email
+          alias_method :email_was, :email
         end
 
         delegate :confirmation_token, :confirmation_token=,
@@ -84,22 +87,6 @@ module Devise
           @postponed_email_change == true
         end
 
-        # Indicates if the `email` and `unconfirmed_email` are being updated
-        # during the postpone-email-change `before_commit` callback
-        # See `postpone_email_change_until_confirmation_and_regenerate_confirmation_token`
-        def currently_postponing_email_change?
-          @currently_postponing_email_change == true
-        end
-
-        # Override to set flags that indicate postpone-email-change is currently happening.
-        # See `multi_email#change_primary_email_to`
-        def postpone_email_change_until_confirmation_and_regenerate_confirmation_token
-          @currently_postponing_email_change = true
-          super
-        ensure
-          @currently_postponing_email_change = false
-        end
-
         # Override to set flags that indicate confirmation is currently happening.
         # See `multi_email#switching_to_unconfirmed_email?`
         def confirm(*)
@@ -119,12 +106,7 @@ module Devise
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          if currently_postponing_email_change?
-            # Don't make any changes while postponement is being processed
-            # because Devise sets `unconfirmed_email = email` and then
-            # `email = email_was`
-            new_email
-          elsif currently_confirming? && new_email.present?
+          if currently_confirming? && new_email.present?
             # Devise is setting `email = unconfirmed_email` and then `unconfirmed_email = nil`
             # but the latter is skipped because we check if `new_email` is present
             multi_email.set_primary_record_to(
@@ -134,6 +116,8 @@ module Devise
           else
             multi_email.change_primary_email_to(new_email)
           end
+
+          new_email
         end
         alias_method :unconfirmed_email=, :email=
 

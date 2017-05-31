@@ -12,7 +12,7 @@ module Devise
         multi_email_association.include_module(EmailModelExtensions)
       end
 
-      delegate :email_was, :email_in_database, :email_changed?, :will_save_change_to_email?, to: 'multi_email.primary_email_record'
+      delegate :email_changed?, :will_save_change_to_email?, to: 'multi_email.primary_email_record'
       delegate Devise::MultiEmail.primary_email_method_name, to: :multi_email, allow_nil: false
 
       def multi_email

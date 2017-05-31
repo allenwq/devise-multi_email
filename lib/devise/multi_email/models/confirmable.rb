@@ -116,6 +116,15 @@ module Devise
           @currently_confirming == true
         end
 
+        def save(*args, &block)
+          # save confirmed_at date on Email
+          if currently_confirming? && self.class.multi_email_association.reflection.options[:autosave].nil?
+            multi_email.current_email_record.save(*args)
+          end
+
+          super
+        end
+
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)

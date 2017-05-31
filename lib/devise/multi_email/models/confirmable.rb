@@ -88,47 +88,32 @@ module Devise
         end
 
         # Override to set flags that indicate confirmation is currently happening.
-        # See `currently_confirming?`
         def confirm(args={})
-          @currently_confirming = true
           pending_any_confirmation do
             if pending_reconfirmation?
+              # Hold onto unconfirmed email record
               unconfirmed_email_record = multi_email.unconfirmed_email_record
-              super
-              unconfirmed_email_record.confirm(args)
-              # Devise is setting `email = unconfirmed_email` and then `unconfirmed_email = nil`
-              # but the latter is skipped because we check if `new_email` is present
-              multi_email.set_primary_record_to(unconfirmed_email_record)
-            else
-              multi_email.current_email_record.confirm(args)
-            end
-          end
-        ensure
-          @currently_confirming = false
-        end
 
-        # Indicates if `confirm` is currently being called on the parent model
-        # and the `email` and `unconfirmed_email` changes should be handled specially.
-        # See `email=`
-        def currently_confirming?
-          @currently_confirming == true
+              # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
+              saved = super
+
+              if saved
+                # Confirm the unconfirmed email record
+                saved = unconfirmed_email_record.confirm(args)
+                multi_email.set_primary_record_to(unconfirmed_email_record)
+              end
+            else
+              saved = multi_email.current_email_record.confirm(args)
+            end
+
+            saved
+          end
         end
 
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          if currently_confirming? && new_email.present?
-            # Devise is setting `email = unconfirmed_email` and then `unconfirmed_email = nil`
-            # but the latter is skipped because we check if `new_email` is present
-            multi_email.set_primary_record_to(
-              multi_email.find_or_build_for_email(new_email),
-              skip_confirmations: true
-            )
-          else
-            multi_email.change_primary_email_to(new_email)
-          end
-
-          new_email
+          multi_email.change_primary_email_to(new_email)
         end
         alias_method :unconfirmed_email=, :email=
 

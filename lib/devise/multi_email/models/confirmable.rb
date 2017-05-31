@@ -88,10 +88,21 @@ module Devise
         end
 
         # Override to set flags that indicate confirmation is currently happening.
-        # See `multi_email#switching_to_unconfirmed_email?`
-        def confirm(*)
+        # See `currently_confirming?`
+        def confirm(args={})
           @currently_confirming = true
-          super
+          pending_any_confirmation do
+            if pending_reconfirmation?
+              unconfirmed_email_record = multi_email.unconfirmed_email_record
+              super
+              unconfirmed_email_record.confirm(args)
+              # Devise is setting `email = unconfirmed_email` and then `unconfirmed_email = nil`
+              # but the latter is skipped because we check if `new_email` is present
+              multi_email.set_primary_record_to(unconfirmed_email_record)
+            else
+              multi_email.current_email_record.confirm(args)
+            end
+          end
         ensure
           @currently_confirming = false
         end

@@ -49,13 +49,6 @@ module Devise
         new_email
       end
 
-      # Indicates if `confirm` is currently being called on the parent model
-      # and the `email` and `unconfirmed_email` changes should be handled specially.
-      # See `change_primary_email_to`
-      def switching_to_unconfirmed_email?
-        @parent_record.try(:currently_confirming?) == true
-      end
-
       # See if any of the unconfirmed emails was recently created or changed.
       def unconfirmed_email_changes?
         !unconfirmed_emails.all?(&:persisted?) || unconfirmed_emails.any?(&:changed?)

@@ -8,12 +8,12 @@ module Devise
       included do
         devise :confirmable
 
-        extend ClassReplacementMethods
+        include ConfirmableExtensions
       end
 
-      module ClassReplacementMethods
-        def allow_unconfirmed_access_for
-          0.days
+      module ConfirmableExtensions
+        def confirmation_period_valid?
+          primary? ? super : false
         end
       end
     end

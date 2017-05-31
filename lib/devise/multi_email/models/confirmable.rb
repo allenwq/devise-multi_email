@@ -115,7 +115,12 @@ module Devise
         def email=(new_email)
           multi_email.change_primary_email_to(new_email)
         end
-        alias_method :unconfirmed_email=, :email=
+
+        def unconfirmed_email=(new_email)
+          # `new_email` is set to nil by Devise when `confirm` is called
+          # and we don't need to do anything here
+          self.email = new_email unless new_email.nil?
+        end
 
         def unconfirmed_email
           multi_email.unconfirmed_email_record.try(:email)

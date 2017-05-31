@@ -87,20 +87,25 @@ module Devise
           @postponed_email_change == true
         end
 
-        # Override to set flags that indicate confirmation is currently happening.
+        # Override to confirm unconfirmed emails properly
         def confirm(args={})
           pending_any_confirmation do
             if pending_reconfirmation?
-              # Hold onto unconfirmed email record
+              # Hold onto unconfirmed email record for later use
               unconfirmed_email_record = multi_email.unconfirmed_email_record
 
-              # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
-              saved = super
+              transaction(requires_new: true) do
+                # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
+                saved = super
 
-              if saved
-                # Confirm the unconfirmed email record
-                multi_email.set_primary_record_to(unconfirmed_email_record)
-                saved = unconfirmed_email_record.confirm(args)
+                if saved
+                  # Confirm the unconfirmed email record
+                  multi_email.set_primary_record_to(unconfirmed_email_record)
+                  saved = unconfirmed_email_record.confirm(args)
+
+                  # We want to rollback changes to both parent and email models
+                  raise ActiveRecord::Rollback unless saved
+                end
               end
             else
               saved = multi_email.current_email_record.confirm(args)
@@ -119,7 +124,7 @@ module Devise
         def unconfirmed_email=(new_email)
           # `new_email` is set to nil by Devise when `confirm` is called
           # and we don't need to do anything here
-          self.email = new_email unless new_email.nil?
+          self.email = new_email unless new_email.blank?
         end
 
         def unconfirmed_email

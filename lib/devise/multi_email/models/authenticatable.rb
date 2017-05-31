@@ -40,7 +40,7 @@ module Devise
           multi_email.current_email_record.try(:email)
         end
 
-        # Sets the default email address of the user.
+        # Sets the primary email address of the user.
         def email=(new_email)
           multi_email.change_primary_email_to(new_email, force_primary: true)
         end

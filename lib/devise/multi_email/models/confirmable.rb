@@ -113,7 +113,7 @@ module Devise
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          multi_email.change_primary_email_to(new_email)
+          multi_email.change_primary_email_to(new_email, make_primary: false)
         end
 
         def unconfirmed_email=(new_email)

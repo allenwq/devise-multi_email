@@ -99,8 +99,8 @@ module Devise
 
               if saved
                 # Confirm the unconfirmed email record
-                saved = unconfirmed_email_record.confirm(args)
                 multi_email.set_primary_record_to(unconfirmed_email_record)
+                saved = unconfirmed_email_record.confirm(args)
               end
             else
               saved = multi_email.current_email_record.confirm(args)

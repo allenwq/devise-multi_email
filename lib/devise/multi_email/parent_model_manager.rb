@@ -38,8 +38,8 @@ module Devise
           # mark none as primary when set to nil
           filtered_emails.each{ |item| item.primary = false }
         else
-        # finds a record or creates an unconfirmed one
-        record = find_or_build_for_email(new_email)
+          # finds a record or creates an unconfirmed one
+          record = find_or_build_for_email(new_email)
 
           if record.confirmed? || primary_email_record.nil? || options[:force_primary]
             set_primary_record_to(record, options)
@@ -66,6 +66,17 @@ module Devise
         record || emails.build(email: formatted_email)
       end
 
+      # :skip_confirmations option confirms this email record (without saving)
+      def set_primary_record_to(record, options = {})
+        # Toggle primary flag for all emails
+        filtered_emails.each{ |other| other.primary = (other.email == record.email) }
+
+        if options[:skip_confirmations]
+          record.try(:skip_confirmation!)
+          record.try(:skip_reconfirmation!)
+        end
+      end
+
       def emails
         @parent_record.__send__(@parent_record.class.multi_email_association.name)
       end
@@ -83,17 +94,6 @@ module Devise
       # email is confirmed.
       def unconfirmed_emails
         filtered_emails.lazy.reject(&:primary?).reject(&:confirmed?).to_a
-      end
-
-      # :skip_confirmations option confirms this email record (without saving)
-      def set_primary_record_to(record, options = {})
-        # Toggle primary flag for all emails
-        filtered_emails.each{ |other| other.primary = (other.email == record.email) }
-
-        if options[:skip_confirmations]
-          record.try(:skip_confirmation!)
-          record.try(:skip_reconfirmation!)
-        end
       end
     end
   end

@@ -35,7 +35,6 @@ module Devise
             # Toggle `primary` value for all emails if `autosave` is not on
             unless self.class.multi_email_association.autosave_changes?
               if multi_email.primary_email_record
-                multi_email.primary_email_record.save!
                 update_args = [
                   "#{self.class.connection.quote_column_name(:primary)} = (CASE #{self.class.connection.quote_column_name(:id)} WHEN ? THEN 1 ELSE 0 END)",
                   multi_email.primary_email_record.id

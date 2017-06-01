@@ -67,4 +67,35 @@ RSpec.describe 'Authenticatable', type: :feature do
       end
     end
   end
+
+  describe 'User Has Multiple Emails' do
+    context 'when changing primary email' do
+      it 'toggles and persists primary value for all emails' do
+        user = create_user
+        second_email = create_email(user)
+        third_email = create_email(user)
+
+        user.save
+
+        puts "user.emails changes: #{user.emails.map(&:changes).inspect}"
+        puts "user.emails changed: #{user.emails.map(&:changed?).inspect}"
+
+        expect(user.errors.size).to eq 0
+        expect(user.emails.all?(&:persisted?)).to eq true
+        expect(user.emails.any?(&:changed?)).to eq false
+
+        user.email = second_email.email
+        user.email = third_email.email
+
+        expect(user.emails.select(&:primary?).size).to eq 1
+
+        user.save
+        user.reload
+        user.emails.reload
+
+        expect(user.emails.select(&:primary?).size).to eq 1
+        expect(user.multi_email.primary_email_record.email).to eq third_email.email
+      end
+    end
+  end
 end

@@ -91,20 +91,15 @@ module Devise
         def confirm(args={})
           pending_any_confirmation do
             if pending_reconfirmation?
-              # Hold onto unconfirmed email record for later use
-              unconfirmed_email_record = multi_email.unconfirmed_email_record
+              # mark as confirmed so it's automatically set to primary email by Devise below
+              multi_email.unconfirmed_email_record.skip_confirmation!
 
               transaction(requires_new: true) do
                 # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
                 saved = super
 
-                if saved
-                  # Confirm the unconfirmed email record
-                  multi_email.set_primary_record_to(unconfirmed_email_record)
-                  saved = unconfirmed_email_record.confirm(args)
-
-                  # We want to rollback changes to both parent and email models
-                  raise ActiveRecord::Rollback unless saved
+                if saved && self.class.multi_email_association.autosave_changes? && multi_email.unconfirmed_email_record.changes?
+                  multi_email.unconfirmed_email_record.save!
                 end
               end
             else

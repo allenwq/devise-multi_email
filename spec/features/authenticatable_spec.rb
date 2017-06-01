@@ -77,9 +77,6 @@ RSpec.describe 'Authenticatable', type: :feature do
 
         user.save
 
-        puts "user.emails changes: #{user.emails.map(&:changes).inspect}"
-        puts "user.emails changed: #{user.emails.map(&:changed?).inspect}"
-
         expect(user.errors.size).to eq 0
         expect(user.emails.all?(&:persisted?)).to eq true
         expect(user.emails.any?(&:changed?)).to eq false

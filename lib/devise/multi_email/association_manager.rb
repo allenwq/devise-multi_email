@@ -14,6 +14,10 @@ module Devise
         model_class.__send__ :include, mod
       end
 
+      def autosave_changes?
+        reflection.options[:autosave] == true
+      end
+
       def model_class
         unless reflection
           raise "#{@klass}##{name} association not found: It might be because your declaration is after `devise :multi_email_confirmable`."

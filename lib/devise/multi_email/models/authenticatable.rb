@@ -30,6 +30,23 @@ module Devise
 
         included do
           multi_email_association.include_module(EmailAuthenticatable)
+
+          after_save do
+            # Toggle `primary` value for all emails if `autosave` is not on
+            unless self.class.multi_email_association.autosave_changes?
+              if multi_email.primary_email_record
+                multi_email.primary_email_record.save!
+                update_args = [
+                  "#{self.class.connection.quote_column_name(:primary)} = (CASE #{self.class.connection.quote_column_name(:id)} WHEN ? THEN 1 ELSE 0 END)",
+                  multi_email.primary_email_record.id
+                ]
+              else
+                update_args = {primary: false}
+              end
+
+              multi_email.emails.update_all(update_args)
+            end
+          end
         end
 
         delegate :skip_confirmation!, to: Devise::MultiEmail.primary_email_method_name, allow_nil: false

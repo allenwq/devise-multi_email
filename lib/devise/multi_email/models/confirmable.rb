@@ -51,6 +51,10 @@ module Devise
             end
           end
 
+          after_save do
+            multi_email.unconfirmed_email_record.save! if multi_email.unconfirmed_email_record.try(:changed?)
+          end
+
           # When changing the email address on the parent record, the default Devise
           # lifecycle will take care of sending a confirmation email. This callback
           # prevents sending the notification emails again for each Email record.

@@ -96,9 +96,6 @@ module Devise
         def confirm(args={})
           pending_any_confirmation do
             if pending_reconfirmation?
-              # mark as confirmed so it's automatically set to primary email by Devise below
-              multi_email.unconfirmed_email_record.skip_confirmation!
-
               # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
               coordinate_confirmation{super}
             else
@@ -110,7 +107,11 @@ module Devise
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          multi_email.change_primary_email_to(new_email, make_primary: false)
+          multi_email.change_primary_email_to(
+            new_email,
+            force_primary: coordinating_confirmation?,
+            skip_confirmations: coordinating_confirmation?
+          )
         end
 
         def unconfirmed_email=(new_email)
@@ -126,7 +127,12 @@ module Devise
       protected
 
         def coordinate_confirmation
-          yield
+          @coordinating_confirmation = true
+          yield.tap{ @coordinating_confirmation = false }
+        end
+
+        def coordinating_confirmation?
+          @coordinating_confirmation == true
         end
 
         module ConfirmableAutosaveExtensions
@@ -134,10 +140,13 @@ module Devise
 
           def coordinate_confirmation
             transaction(requires_new: true) do
-              saved = yield
+              saved = super
 
-              if saved && multi_email.unconfirmed_email_record.changes?
-                multi_email.unconfirmed_email_record.save!
+              # The `primary_email_record` was the `unconfirmed_email_record`
+              if saved && multi_email.primary_email_record.changed?
+                multi_email.primary_email_record.save!
+              else
+                saved
               end
             end
           end

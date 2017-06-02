@@ -32,20 +32,7 @@ module Devise
           multi_email_association.include_module(EmailAuthenticatable)
 
           unless multi_email_association.autosave_changes?
-            primary_column = connection.quote_column_name(:primary)
-            id_column      = connection.quote_column_name(:id)
-            
-            # Toggle `primary` value for all emails if `autosave` is not on
-            after_save do
-              if multi_email.primary_email_record
-                multi_email.emails.update_all([
-                  "#{primary_column} = (CASE #{id_column} WHEN ? THEN 1 ELSE 0 END)",
-                  multi_email.primary_email_record.id
-                ])
-              else
-                multi_email.emails.update_all(primary: false)
-              end
-            end
+            include AuthenticatableAutosaveExtensions
           end
         end
 
@@ -59,6 +46,27 @@ module Devise
         # Sets the default email address of the user.
         def email=(new_email)
           multi_email.change_primary_email_to(new_email)
+        end
+      end
+
+      module AuthenticatableAutosaveExtensions
+        extend ActiveSupport::Concern
+
+        included do
+          primary_column = connection.quote_column_name(:primary)
+          id_column      = connection.quote_column_name(:id)
+
+          # Toggle `primary` value for all emails if `autosave` is not on
+          after_save do
+            if multi_email.primary_email_record
+              multi_email.emails.update_all([
+                "#{primary_column} = (CASE #{id_column} WHEN ? THEN 1 ELSE 0 END)",
+                multi_email.primary_email_record.id
+              ])
+            else
+              multi_email.emails.update_all(primary: false)
+            end
+          end
         end
       end
 

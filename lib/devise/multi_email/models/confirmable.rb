@@ -37,6 +37,7 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
+          multi_email_association.configure_autosave!{ include ConfirmableAutosaveExtensions }
           multi_email_association.include_module(EmailConfirmable)
 
           before_update do
@@ -98,19 +99,11 @@ module Devise
               # mark as confirmed so it's automatically set to primary email by Devise below
               multi_email.unconfirmed_email_record.skip_confirmation!
 
-              transaction(requires_new: true) do
-                # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
-                saved = super
-
-                if saved && self.class.multi_email_association.autosave_changes? && multi_email.unconfirmed_email_record.changes?
-                  multi_email.unconfirmed_email_record.save!
-                end
-              end
+              # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
+              coordinate_confirmation{super}
             else
-              saved = multi_email.current_email_record.confirm(args)
+              multi_email.current_email_record.confirm(args)
             end
-
-            saved
           end
         end
 
@@ -128,6 +121,26 @@ module Devise
 
         def unconfirmed_email
           multi_email.unconfirmed_email_record.try(:email)
+        end
+
+      protected
+
+        def coordinate_confirmation
+          yield
+        end
+
+        module ConfirmableAutosaveExtensions
+          extend ActiveSupport::Concern
+
+          def coordinate_confirmation
+            transaction(requires_new: true) do
+              saved = yield
+
+              if saved && multi_email.unconfirmed_email_record.changes?
+                multi_email.unconfirmed_email_record.save!
+              end
+            end
+          end
         end
 
       private

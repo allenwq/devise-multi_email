@@ -13,12 +13,18 @@ module RailsTestHelpers
   end
 
   def create_email(user, options = {})
-    email = user.emails.create!(
-      email: options[:email] || "user_#{SecureRandom.hex}@test.com",
-      created_at: Time.now.utc
-    )
+    email_address = user.multi_email.format_email(options[:email] || "user_#{SecureRandom.hex}@test.com")
+    user.email = email_address
+
+    email = user.emails.to_a.find{ |record| record.email == email_address}
     email.update_attribute(:confirmation_sent_at, options[:confirmation_sent_at]) if options[:confirmation_sent_at]
-    email.confirm unless options[:confirm] == false
+
+    if options[:confirm] == false
+      user.save
+    else
+      email.confirm
+    end
+
     email
   end
 

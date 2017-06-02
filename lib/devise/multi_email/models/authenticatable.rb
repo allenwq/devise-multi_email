@@ -29,33 +29,55 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
+          multi_email_association.configure_autosave!{ include AuthenticatableAutosaveExtensions }
           multi_email_association.include_module(EmailAuthenticatable)
         end
 
-        delegate :skip_confirmation!, to: Devise::MultiEmail.primary_email_method_name, allow_nil: false
+        delegate :active_for_authentication?, to: 'multi_email.current_email_record', allow_nil: false
 
         # Gets the primary email address of the user.
         def email
-          multi_email.primary_email.try(:email)
+          multi_email.current_email_record.try(:email)
         end
 
-        # Sets the default email address of the user.
+        # Sets the primary email address of the user.
         def email=(new_email)
-          multi_email.change_primary_email_to(new_email)
+          multi_email.change_primary_email_to(new_email, force_primary: true)
+        end
+      end
+
+      module AuthenticatableAutosaveExtensions
+        extend ActiveSupport::Concern
+
+        included do
+          primary_column = connection.quote_column_name(:primary)
+          id_column      = connection.quote_column_name(:id)
+
+          # Toggle `primary` value for all emails if `autosave` is not on
+          after_save do
+            if multi_email.primary_email_record
+              multi_email.emails.update_all([
+                "#{primary_column} = (CASE #{id_column} WHEN ? THEN 1 ELSE 0 END)",
+                multi_email.primary_email_record.id
+              ])
+            else
+              multi_email.emails.update_all(primary: false)
+            end
+          end
         end
       end
 
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
           filtered_conditions = devise_parameter_filter.filter(tainted_conditions.dup)
-          email = filtered_conditions.delete(:email)
+          criteria = filtered_conditions.extract!(:email, :unconfirmed_email)
 
-          if email && email.is_a?(String)
+          if criteria.keys.any?
             conditions = filtered_conditions.to_h.merge(opts).
-              reverse_merge(multi_email_association.reflection.table_name => { email: email })
+              reverse_merge(build_conditions(criteria))
 
             resource = joins(multi_email_association.name).find_by(conditions)
-            resource.current_login_email = email if resource.respond_to?(:current_login_email=)
+            resource.current_login_email = criteria.values.first if resource
             resource
           else
             super(tainted_conditions, opts)
@@ -63,7 +85,19 @@ module Devise
         end
 
         def find_by_email(email)
-          joins(multi_email_association.name).where(multi_email_association.reflection.table_name => { email: email.downcase }).first
+          joins(multi_email_association.name).where(build_conditions email: email).first
+        end
+
+        def build_conditions(criteria)
+          criteria = devise_parameter_filter.filter(criteria)
+          if criteria[:unconfirmed_email]
+            # Match unconfirmed email records with `confirmed_at = nil`
+            criteria.merge!(primary: false, confirmed_at: nil, email: criteria.delete(:unconfirmed_email))
+          elsif Devise::MultiEmail.only_login_with_primary_email
+            criteria.merge!(primary: true)
+          end
+
+          { multi_email_association.reflection.table_name.to_sym => criteria }
         end
       end
     end

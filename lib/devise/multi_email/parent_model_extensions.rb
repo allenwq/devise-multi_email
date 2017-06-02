@@ -8,9 +8,11 @@ module Devise
       extend ActiveSupport::Concern
 
       included do
+        multi_email_association.configure_autosave!
         multi_email_association.include_module(EmailModelExtensions)
       end
-      
+
+      delegate :email_changed?, :will_save_change_to_email?, to: 'multi_email.primary_email_record'
       delegate Devise::MultiEmail.primary_email_method_name, to: :multi_email, allow_nil: false
 
       def multi_email

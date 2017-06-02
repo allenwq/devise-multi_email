@@ -8,12 +8,12 @@ module Devise
       included do
         devise :confirmable
 
-        extend ClassReplacementMethods
+        include ConfirmableExtensions
       end
 
-      module ClassReplacementMethods
-        def allow_unconfirmed_access_for
-          0.days
+      module ConfirmableExtensions
+        def confirmation_period_valid?
+          primary? ? super : false
         end
       end
     end
@@ -37,65 +37,125 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
+          multi_email_association.configure_autosave!{ include ConfirmableAutosaveExtensions }
           multi_email_association.include_module(EmailConfirmable)
+
+          before_update do
+            # Handle automatically confirming and linking `unconfirmed_email`
+            # when email change is not postponed (which basically means
+            # Devise is not configured to require confirmation)
+            if !postponed_email_change? && multi_email.unconfirmed_email_changes?
+              multi_email.set_primary_record_to(
+                multi_email.unconfirmed_email_record,
+                skip_confirmations: true
+              )
+            end
+          end
+
+          after_save do
+            multi_email.unconfirmed_email_record.save! if multi_email.unconfirmed_email_record.try(:changed?)
+          end
+
+          # When changing the email address on the parent record, the default Devise
+          # lifecycle will take care of sending a confirmation email. This callback
+          # prevents sending the notification emails again for each Email record.
+          # *NOTE* This does not confirm the emails, it simply skips sending a
+          # confirmation email.
+          if respond_to?(:after_commit)
+            after_commit(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
+          else # Mongoid
+            after_create(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
+            after_update(prepend: true){ multi_email.primary_email_record.try(:skip_confirmation_notification!) }
+          end
+
+          alias_method :email_in_database, :email
+          alias_method :email_was, :email
         end
 
-        # delegate before creating overriding methods
-        delegate :skip_confirmation!, :skip_confirmation_notification!, :skip_reconfirmation!, :confirmation_required?,
-                 :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
-                 :reconfirmation_required?, :pending_reconfirmation?, to: :primary_email_record, allow_nil: true
+        delegate :confirmation_token, :confirmation_token=,
+                 :confirmed_at, :confirmed_at=, :confirmation_sent_at, :confirmation_sent_at=,
+                 to: 'multi_email.current_email_record', allow_nil: true
 
-        # This need to be forwarded to the email that the user logged in with
-        def active_for_authentication?
-          login_email = current_login_email_record
+        delegate :email_changed?, :will_save_change_to_email?, to: 'multi_email.unconfirmed_email_record', allow_nil: true
 
-          if login_email && !login_email.primary?
-            super && login_email.active_for_authentication?
-          else
-            super
+        # Override to reset flag indicating if email change was postponed.
+        # (Used in `before_commit` hook to handle confirming `unconfirmed_email`)
+        # See `multi_email#before_commit_confirm_unconfirmed_email_when_not_postponed`
+        def postpone_email_change?
+          # Reset the flag that indicates whether the email change was postponed
+          @postponed_email_change = super
+        end
+
+        # Indicates if the email change was postponed in the `before_commit` callback.
+        # See `multi_email#before_commit_confirm_unconfirmed_email_when_not_postponed`
+        def postponed_email_change?
+          @postponed_email_change == true
+        end
+
+        # Override to confirm unconfirmed emails properly
+        def confirm(args={})
+          pending_any_confirmation do
+            if pending_reconfirmation?
+              # Devise sets `email = unconfirmed_email` and then `unconfirmed_email = nil`
+              coordinate_confirmation{super}
+            else
+              multi_email.current_email_record.confirm(args)
+            end
           end
         end
 
-        # Shows email not confirmed instead of account inactive when the email that user used to login is not confirmed
-        def inactive_message
-          login_email = current_login_email_record
+        # In case email updates are being postponed, don't change anything
+        # when the postpone feature tries to switch things back
+        def email=(new_email)
+          multi_email.change_primary_email_to(
+            new_email,
+            force_primary: coordinating_confirmation?,
+            skip_confirmations: coordinating_confirmation?
+          )
+        end
 
-          if login_email && !login_email.primary? && !login_email.confirmed?
-            :unconfirmed
-          else
-            super
-          end
+        def unconfirmed_email=(new_email)
+          # `new_email` is set to nil by Devise when `confirm` is called
+          # and we don't need to do anything here
+          self.email = new_email unless new_email.blank?
+        end
+
+        def unconfirmed_email
+          multi_email.unconfirmed_email_record.try(:email)
         end
 
       protected
 
-        # Overrides Devise::Models::Confirmable#postpone_email_change?
-        def postpone_email_change?
-          false
+        def coordinate_confirmation
+          @coordinating_confirmation = true
+          yield.tap{ @coordinating_confirmation = false }
         end
 
-        # Email should handle the confirmation token.
-        def generate_confirmation_token
+        def coordinating_confirmation?
+          @coordinating_confirmation == true
         end
 
-        # Email will send reconfirmation instructions.
-        def send_reconfirmation_instructions
-        end
+        module ConfirmableAutosaveExtensions
+          extend ActiveSupport::Concern
 
-        # Email will send confirmation instructions.
-        def send_on_create_confirmation_instructions
+          def coordinate_confirmation
+            transaction(requires_new: true) do
+              saved = super
+
+              # The `primary_email_record` was the `unconfirmed_email_record`
+              if saved && multi_email.primary_email_record.changed?
+                multi_email.primary_email_record.save!
+              else
+                saved
+              end
+            end
+          end
         end
 
       private
 
-        def current_login_email_record
-          if respond_to?(:current_login_email) && current_login_email
-            multi_email.emails.find_by(email: current_login_email)
-          end
-        end
-
         module ClassMethods
-          delegate :confirm_by_token, :send_confirmation_instructions, to: 'multi_email_association.model_class', allow_nil: false
+          delegate :confirm_by_token, to: 'multi_email_association.model_class', allow_nil: false
         end
       end
     end

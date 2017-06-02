@@ -7,6 +7,26 @@ module Devise
       yield self
     end
 
+    @configure_autosave = false
+
+    def self.configure_autosave
+      @configure_autosave
+    end
+
+    def self.configure_autosave=(value)
+      @configure_autosave = (value == true)
+    end
+
+    @only_login_with_primary_email = false
+
+    def self.only_login_with_primary_email
+      @only_login_with_primary_email
+    end
+
+    def self.only_login_with_primary_email=(value)
+      @only_login_with_primary_email = (value == true)
+    end
+
     def self.parent_association_name
       @parent_association_name ||= :user
     end
@@ -24,7 +44,7 @@ module Devise
     end
 
     def self.primary_email_method_name
-      @primary_email_method_name ||= :primary_email
+      @primary_email_method_name ||= :primary_email_record
     end
 
     def self.primary_email_method_name=(name)

@@ -1,8 +1,18 @@
+### 2.1.0 - 2017-XX-XX
+
+* Refactored to hook into Devise lifecycle more closely, without disabling default functionality out-of-the-box
+* Integrates `unconfirmed_email` into `emails` collection
+
+### 2.0.1 - 2017-05-16
+
+* Refactored to simplify some logic and start moving toward mimicking default Devise lifecycle behavior
+* Added `Devise::MultiEmail.only_login_with_primary_email` option to restrict login to only primary emails
+* Added `Devise::MultiEmail.configure_autosave` option to automatically enable `autosave` on `emails` association, to ensure email changes are persisted from parent record
+
 ### 2.0.0 - 2017-05-12
 
-* New `Devise::MultiEmail#configure` setup with options for `user` and `emails` associations and `primary_email` method names
+* New `Devise::MultiEmail#configure` setup with options for `user` and `emails` associations and `primary_email_record` method names
 * Refactor to expose `_multi_email_*` prefixed methods on models
-* New `primary_email` method to get primary email record (however, can be configured as `primary_email_record` for backwards-compatibility)
 * Changed logic when changing an email address to look up existing email record, otherwise creating a new one, then marking it "primary"
 * Changed logic when changing an email address to mark all others as `primary = false`
 * Changed logic when changing an email address to `nil` to mark as `primary = false` rather than deleting records

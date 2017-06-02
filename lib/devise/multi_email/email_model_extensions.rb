@@ -6,6 +6,13 @@ module Devise
     module EmailModelExtensions
       extend ActiveSupport::Concern
 
+      def pending_reconfirmation?
+        # The `unconfirmed_email` is used from the parent model
+        # for Devise compatibility, so when confirming on the email
+        # model directly, ignore the `unconfirmed_email`
+        false
+      end
+
       def multi_email
         @multi_email ||= EmailModelManager.new(self)
       end

@@ -45,6 +45,12 @@ module Devise
                  :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
                  :reconfirmation_required?, :pending_reconfirmation?, to: :primary_email_record, allow_nil: true
 
+        # In case email updates are being postponed, don't change anything
+        # when the postpone feature tries to switch things back
+        def email=(new_email)
+          multi_email.change_primary_email_to(new_email, make_primary: false)
+        end
+
         # This need to be forwarded to the email that the user logged in with
         def active_for_authentication?
           login_email = multi_email.login_email_record

@@ -26,7 +26,10 @@ module Devise
       end
       alias_method Devise::MultiEmail.primary_email_method_name, :primary_email_record
 
-      def change_primary_email_to(new_email)
+      # :make_primary option sets this email record to primary
+      # :skip_confirmations option confirms this email record (without saving)
+      # @see `set_primary_record_to`
+      def change_primary_email_to(new_email, options = {})
         # mark none as primary when set to nil
         if new_email.nil?
           filtered_emails.each{ |item| item.primary = false }
@@ -35,7 +38,9 @@ module Devise
         else
           record = find_or_build_for_email(new_email)
 
-          set_primary_record_to(record)
+          if record.try(:confirmed?) || primary_email_record.nil? || options[:make_primary]
+            set_primary_record_to(record, options)
+          end
         end
 
         record
@@ -64,15 +69,14 @@ module Devise
         emails.lazy.reject(&:destroyed?).reject(&:marked_for_destruction?).to_a
       end
 
+      # :skip_confirmations option confirms this email record (without saving)
       def set_primary_record_to(record, options = {})
-        options = {skip_confirmations: false}.merge(options)
-
         # Toggle primary flag for all emails
         filtered_emails.each{ |other| other.primary = (other.email == record.email) }
 
         if options[:skip_confirmations]
-          record.skip_confirmation!
-          record.skip_reconfirmation!
+          record.try(:skip_confirmation!)
+          record.try(:skip_reconfirmation!)
         end
       end
     end

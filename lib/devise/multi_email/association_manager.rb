@@ -19,15 +19,12 @@ module Devise
       end
 
       def model_class
-        unless reflection
-          raise "#{@klass}##{name} association not found: It might be because your declaration is after `devise :multi_email_confirmable`."
-        end
-
         @model_class ||= reflection.class_name.constantize
       end
 
       def reflection
-        @reflection ||= @klass.reflect_on_association(name)
+        @reflection ||= @klass.reflect_on_association(name) ||
+                        raise("#{@klass}##{name} association not found: It might be because your declaration is after `devise :multi_email_confirmable`.")
       end
     end
   end

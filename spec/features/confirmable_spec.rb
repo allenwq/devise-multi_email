@@ -36,6 +36,73 @@ RSpec.describe 'Confirmable', type: :feature do
     expect(user.primary_email_record).to be_confirmed
   end
 
+  describe 'Change primary email' do
+    it 'persists the new primary email when confirmed' do
+      user = create_user
+      first_email = user.primary_email_record
+      second_email = create_email(user)
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+
+      user.reload
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+
+      user.email = second_email.email
+
+      expect(user.primary_email_record.email).to eq(second_email.email)
+
+      user.save
+      user.reload
+
+      expect(user.primary_email_record.email).to eq(second_email.email)
+    end
+
+    it 'does not persist the new primary email when not confirmed' do
+      user = create_user
+      first_email = user.primary_email_record
+      second_email = create_email(user, confirm: false)
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+
+      user.reload
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+
+      user.email = second_email.email
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+
+      user.save
+      user.reload
+
+      expect(user.primary_email_record.email).to eq(first_email.email)
+    end
+
+    context 'when using multi_email API' do
+      it 'persists the new primary email when not confirmed' do
+        user = create_user
+        first_email = user.primary_email_record
+        second_email = create_email(user, confirm: false)
+
+        expect(user.primary_email_record.email).to eq(first_email.email)
+
+        user.reload
+
+        expect(user.primary_email_record.email).to eq(first_email.email)
+
+        user.multi_email.change_primary_email_to(second_email.email, make_primary: true)
+
+        expect(user.primary_email_record.email).to eq(second_email.email)
+
+        user.save
+        user.reload
+
+        expect(user.primary_email_record.email).to eq(second_email.email)
+      end
+    end
+  end
+
   describe 'Unconfirmed sign in' do
     context 'with primary email' do
       it 'shows the error message' do

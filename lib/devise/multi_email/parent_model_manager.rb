@@ -15,7 +15,6 @@ module Devise
       def login_email_record
         if @parent_record.current_login_email.present?
           formatted_email = format_email(@parent_record.current_login_email)
-
           filtered_emails.find{ |item| item.email == formatted_email }
         end
       end
@@ -54,7 +53,6 @@ module Devise
       def find_or_build_for_email(email)
         formatted_email = format_email(email)
         record = filtered_emails.find{ |item| item.email == formatted_email }
-
         record || emails.build(email: formatted_email)
       end
 
@@ -62,12 +60,20 @@ module Devise
         @parent_record.__send__(@parent_record.class.multi_email_association.name)
       end
 
-    protected
-
       # Gets the email records that have not been deleted
-      def filtered_emails
+      def filtered_emails(options = {})
         emails.lazy.reject(&:destroyed?).reject(&:marked_for_destruction?).to_a
       end
+
+      def confirmed_emails
+        filtered_emails.select{ |record| record.try(:confirmed?) }
+      end
+
+      def unconfirmed_emails
+        filtered_emails.reject{ |record| record.try(:confirmed?) }
+      end
+
+    protected
 
       # :skip_confirmations option confirms this email record (without saving)
       def set_primary_record_to(record, options = {})

@@ -58,6 +58,22 @@ Devise::MultiEmail.configure do |config|
 end
 ```
 
+The `autosave` is automatically enabled on the `emails` association by default. This is to ensure the `primary`
+flag is persisted for all emails when the primary email is changed. When `autosave` is not enabled on the association,
+only new emails are saved when the parent (e.g. `User`) record is saved. (Updates to already-persisted email records
+are not saved.)
+
+If you don't want `autosave` to be enabled automatically, you can disable this feature. What this will do is
+enable alternative behavior, which adds an `after_save` callback to the parent record, to update the `primary`
+flag for emails using an `update_all` SQL UPDATE statement.
+
+```ruby
+Devise::MultiEmail.configure do |config|
+  # Default is `true`
+  config.configure_autosave = false
+end
+```
+
 ### Configure custom association names
 
 You may not want to use the association `user.emails` or `email.users`. You can customize the name of the associations used. Add your custom configurations to an initializer file such as `config/initializers/devise-multi_email.rb`.

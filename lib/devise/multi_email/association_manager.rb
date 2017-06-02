@@ -14,6 +14,14 @@ module Devise
         model_class.__send__ :include, mod
       end
 
+      # Specify a block with alternative behavior which should be
+      # run when `autosave` is not enabled.
+      def configure_autosave!(&block)
+        unless autosave_changes?
+          yield if block_given?
+        end
+      end
+
       def autosave_changes?
         reflection.options[:autosave] == true
       end

@@ -29,11 +29,8 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
+          multi_email_association.configure_autosave!{ include AuthenticatableAutosaveExtensions }
           multi_email_association.include_module(EmailAuthenticatable)
-
-          unless multi_email_association.autosave_changes?
-            include AuthenticatableAutosaveExtensions
-          end
         end
 
         delegate :skip_confirmation!, to: Devise::MultiEmail.primary_email_method_name, allow_nil: false

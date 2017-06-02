@@ -21,8 +21,9 @@ module Devise
       end
 
       def unconfirmed_email_record
-        unconfirmed_emails.first(&:new_record?) ||
-        unconfirmed_emails.first
+        # get the last new record added
+        unconfirmed_emails.reverse.find(&:new_record?) ||
+        unconfirmed_emails.last
       end
 
       # Gets the primary email record.

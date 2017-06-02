@@ -26,7 +26,7 @@ module Devise
       end
       alias_method Devise::MultiEmail.primary_email_method_name, :primary_email_record
 
-      # :make_primary option sets this email record to primary
+      # :force_primary option sets this email record to primary
       # :skip_confirmations option confirms this email record (without saving)
       # @see `set_primary_record_to`
       def change_primary_email_to(new_email, options = {})
@@ -38,7 +38,7 @@ module Devise
         else
           record = find_or_build_for_email(new_email)
 
-          if record.try(:confirmed?) || primary_email_record.nil? || options[:make_primary]
+          if record.try(:confirmed?) || primary_email_record.nil? || options[:force_primary]
             set_primary_record_to(record, options)
           end
         end

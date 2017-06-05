@@ -20,9 +20,9 @@ module Devise
         unless autosave_changes?
           if Devise::MultiEmail.configure_autosave
             reflection.autosave = true
+          else
+            yield if block_given?
           end
-
-          yield if block_given?
         end
       end
 

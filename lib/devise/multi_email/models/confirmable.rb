@@ -48,7 +48,7 @@ module Devise
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          multi_email.change_primary_email_to(new_email, force_primary: false)
+          multi_email.change_primary_email_to(new_email, allow_unconfirmed: false)
         end
 
         # This need to be forwarded to the email that the user logged in with

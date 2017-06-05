@@ -70,7 +70,7 @@ flag for emails using an `update_all` SQL UPDATE statement.
 ```ruby
 Devise::MultiEmail.configure do |config|
   # Default is `true`
-  config.configure_autosave = false
+  config.autosave_emails = false
 end
 ```
 

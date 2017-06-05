@@ -7,14 +7,14 @@ module Devise
       yield self
     end
 
-    @configure_autosave = false
+    @autosave_emails = false
 
-    def self.configure_autosave
-      @configure_autosave
+    def self.autosave_emails
+      @autosave_emails
     end
 
-    def self.configure_autosave=(value)
-      @configure_autosave = (value == true)
+    def self.autosave_emails=(value)
+      @autosave_emails = (value == true)
     end
 
     @only_login_with_primary_email = false

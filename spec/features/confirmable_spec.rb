@@ -91,7 +91,7 @@ RSpec.describe 'Confirmable', type: :feature do
 
         expect(user.primary_email_record.email).to eq(first_email.email)
 
-        user.multi_email.change_primary_email_to(second_email.email, force_primary: true)
+        user.multi_email.change_primary_email_to(second_email.email, allow_unconfirmed: true)
 
         expect(user.primary_email_record.email).to eq(second_email.email)
 

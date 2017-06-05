@@ -76,7 +76,7 @@ module Devise
                        :validates_confirmation_of, :validates_length_of].freeze
 
         def assert_validations_api!(base) #:nodoc:
-          unavailable_validations = VALIDATIONS.select{ |v| !base.respond_to?(v) }
+          unavailable_validations = VALIDATIONS.select { |v| !base.respond_to?(v) }
 
           unless unavailable_validations.empty?
             raise "Could not use :validatable module since #{base} does not respond " <<

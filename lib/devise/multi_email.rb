@@ -9,8 +9,8 @@ module Devise
 
     @autosave_emails = false
 
-    def self.autosave_emails
-      @autosave_emails
+    def self.autosave_emails?
+      @autosave_emails == true
     end
 
     def self.autosave_emails=(value)
@@ -19,8 +19,8 @@ module Devise
 
     @only_login_with_primary_email = false
 
-    def self.only_login_with_primary_email
-      @only_login_with_primary_email
+    def self.only_login_with_primary_email?
+      @only_login_with_primary_email == true
     end
 
     def self.only_login_with_primary_email=(value)

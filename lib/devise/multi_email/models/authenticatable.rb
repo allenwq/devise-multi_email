@@ -91,7 +91,7 @@ module Devise
         def build_conditions(criteria)
           criteria = devise_parameter_filter.filter(criteria)
           # match the primary email record if the `unconfirmed_email` column is specified
-          if Devise::MultiEmail.only_login_with_primary_email || criteria[:unconfirmed_email]
+          if Devise::MultiEmail.only_login_with_primary_email? || criteria[:unconfirmed_email]
             criteria.merge!(primary: true)
           end
 

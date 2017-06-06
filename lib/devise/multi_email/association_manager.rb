@@ -18,7 +18,7 @@ module Devise
       # run when `autosave` is not enabled.
       def configure_autosave!(&block)
         unless autosave_enabled?
-          if Devise::MultiEmail.autosave_emails
+          if Devise::MultiEmail.autosave_emails?
             reflection.autosave = true
           else
             yield if block_given?

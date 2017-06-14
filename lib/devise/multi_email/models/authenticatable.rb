@@ -57,8 +57,8 @@ module Devise
           after_save do
             if multi_email.primary_email_record
               multi_email.emails.update_all([
-                "#{primary_column} = (CASE #{id_column} WHEN ? THEN 1 ELSE 0 END)",
-                multi_email.primary_email_record.id
+                "#{primary_column} = (CASE #{id_column} WHEN ? THEN ? ELSE ? END)",
+                multi_email.primary_email_record.id, true, false
               ])
             else
               multi_email.emails.update_all(primary: false)

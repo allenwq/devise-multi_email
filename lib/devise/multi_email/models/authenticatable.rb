@@ -54,7 +54,7 @@ module Devise
           after_save do
             multi_email.filtered_emails.each do |email|
               # update value in database without persisting any other changes
-              email.update_column(:primary, email.primary) if email.changes.key?(:primary)
+              email.save if email.changes.key?(:primary)
             end
           end
         end

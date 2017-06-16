@@ -50,18 +50,11 @@ module Devise
         extend ActiveSupport::Concern
 
         included do
-          primary_column = connection.quote_column_name(:primary)
-          id_column      = connection.quote_column_name(:id)
-
           # Toggle `primary` value for all emails if `autosave` is not on
           after_save do
-            if multi_email.primary_email_record
-              multi_email.emails.update_all([
-                "#{primary_column} = (CASE #{id_column} WHEN ? THEN ? ELSE ? END)",
-                multi_email.primary_email_record.id, true, false
-              ])
-            else
-              multi_email.emails.update_all(primary: false)
+            multi_email.filtered_emails.each do |email|
+              # update value in database without persisting any other changes
+              email.update_column(:primary, email.primary) if email.changes.key?(:primary)
             end
           end
         end

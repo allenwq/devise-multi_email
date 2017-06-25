@@ -6,8 +6,8 @@ require 'devise/multi_email/version'
 Gem::Specification.new do |spec|
   spec.name          = 'devise-multi_email'
   spec.version       = Devise::MultiEmail::VERSION
-  spec.authors       = ['ALLEN WANG QIANG']
-  spec.email         = ['rovingbreeze@gmail.com']
+  spec.authors       = ['ALLEN WANG QIANG', 'Joel Van Horn']
+  spec.email         = ['rovingbreeze@gmail.com', 'joel@joelvanhorn.com']
 
   spec.summary       = %q{Let devise support multiple emails.}
   spec.description   = %q{Devise authenticatable, confirmable and validatable with multiple emails.}

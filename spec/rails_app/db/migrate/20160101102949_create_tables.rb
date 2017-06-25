@@ -1,4 +1,6 @@
-class CreateTables < ActiveRecord::Migration
+BASE_CLASS = Rails::VERSION::MAJOR >= 5 ? ActiveRecord::Migration[4.2] : ActiveRecord::Migration
+
+class CreateTables < BASE_CLASS
   def change
     create_table :users do |t|
       t.string :username

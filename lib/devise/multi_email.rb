@@ -3,32 +3,54 @@ require 'devise'
 
 module Devise
   module MultiEmail
-    def self.configure(&block)
-      yield self
-    end
+    class << self
+      def configure(&block)
+        yield self
+      end
 
-    def self.parent_association_name
-      @parent_association_name ||= :user
-    end
+      @autosave_emails = false
 
-    def self.parent_association_name=(name)
-      @parent_association_name = name.try(:to_sym)
-    end
+      def autosave_emails?
+        @autosave_emails == true
+      end
 
-    def self.emails_association_name
-      @emails_association_name ||= :emails
-    end
+      def autosave_emails=(value)
+        @autosave_emails = (value == true)
+      end
 
-    def self.emails_association_name=(name)
-      @emails_association_name = name.try(:to_sym)
-    end
+      @only_login_with_primary_email = false
 
-    def self.primary_email_method_name
-      @primary_email_method_name ||= :primary_email
-    end
+      def only_login_with_primary_email?
+        @only_login_with_primary_email == true
+      end
 
-    def self.primary_email_method_name=(name)
-      @primary_email_method_name = name.try(:to_sym)
+      def only_login_with_primary_email=(value)
+        @only_login_with_primary_email = (value == true)
+      end
+
+      def parent_association_name
+        @parent_association_name ||= :user
+      end
+
+      def parent_association_name=(name)
+        @parent_association_name = name.try(:to_sym)
+      end
+
+      def emails_association_name
+        @emails_association_name ||= :emails
+      end
+
+      def emails_association_name=(name)
+        @emails_association_name = name.try(:to_sym)
+      end
+
+      def primary_email_method_name
+        @primary_email_method_name ||= :primary_email_record
+      end
+
+      def primary_email_method_name=(name)
+        @primary_email_method_name = name.try(:to_sym)
+      end
     end
   end
 end

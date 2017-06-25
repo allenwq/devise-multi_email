@@ -8,12 +8,12 @@ module Devise
       included do
         devise :confirmable
 
-        extend ClassReplacementMethods
+        include ConfirmableExtensions
       end
 
-      module ClassReplacementMethods
-        def allow_unconfirmed_access_for
-          0.days
+      module ConfirmableExtensions
+        def confirmation_period_valid?
+          primary? ? super : false
         end
       end
     end
@@ -45,9 +45,15 @@ module Devise
                  :confirmation_token, :confirmed_at, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
                  :reconfirmation_required?, :pending_reconfirmation?, to: :primary_email_record, allow_nil: true
 
+        # In case email updates are being postponed, don't change anything
+        # when the postpone feature tries to switch things back
+        def email=(new_email)
+          multi_email.change_primary_email_to(new_email, allow_unconfirmed: false)
+        end
+
         # This need to be forwarded to the email that the user logged in with
         def active_for_authentication?
-          login_email = current_login_email_record
+          login_email = multi_email.login_email_record
 
           if login_email && !login_email.primary?
             super && login_email.active_for_authentication?
@@ -58,7 +64,7 @@ module Devise
 
         # Shows email not confirmed instead of account inactive when the email that user used to login is not confirmed
         def inactive_message
-          login_email = current_login_email_record
+          login_email = multi_email.login_email_record
 
           if login_email && !login_email.primary? && !login_email.confirmed?
             :unconfirmed
@@ -87,12 +93,6 @@ module Devise
         end
 
       private
-
-        def current_login_email_record
-          if respond_to?(:current_login_email) && current_login_email
-            multi_email.emails.find_by(email: current_login_email)
-          end
-        end
 
         module ClassMethods
           delegate :confirm_by_token, :send_confirmation_instructions, to: 'multi_email_association.model_class', allow_nil: false

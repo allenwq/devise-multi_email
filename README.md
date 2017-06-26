@@ -64,8 +64,8 @@ only new emails are saved when the parent (e.g. `User`) record is saved. (Update
 are not saved.)
 
 If you don't want `autosave` to be enabled automatically, you can disable this feature. What this will do is
-enable alternative behavior, which adds an `after_save` callback to the parent record, to update the `primary`
-flag for emails using an `update_all` SQL UPDATE statement.
+enable alternative behavior, which adds an `after_save` callback to the parent record and calls `email.save` on each email
+record where the `primary` value has changed.
 
 ```ruby
 Devise::MultiEmail.configure do |config|

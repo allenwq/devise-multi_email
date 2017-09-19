@@ -30,7 +30,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[5.0]
     add_index :users, :reset_password_token, unique: true
     # add_index :users, :unlock_token,         unique: true
 
-    create_table :emails do |t|
+    create_table :user_emails do |t|
       t.integer :user_id, null: false
       t.string :email, null: false
       t.string :unconfirmed_email
@@ -44,6 +44,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[5.0]
       t.timestamps null: false
     end
 
-    add_index :emails, :confirmation_token, unique: true
+    add_index :user_emails, :confirmation_token, unique: true
   end
 end

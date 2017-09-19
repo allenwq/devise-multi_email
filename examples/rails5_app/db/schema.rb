@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema.define(version: 20170307145547) do
 
-  create_table "emails", force: :cascade do |t|
+  create_table "user_emails", force: :cascade do |t|
     t.integer  "user_id",                              null: false
     t.string   "email",                                null: false
     t.string   "unconfirmed_email"

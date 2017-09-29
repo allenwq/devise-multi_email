@@ -60,12 +60,24 @@ module Devise
     private
 
       def propagate_email_errors
-        email_error_key = self.class.multi_email_association.name
-        email_errors = errors.delete(email_error_key) ||
-                       errors.delete("#{email_error_key}.email".to_sym) || []
+        association_name = self.class.multi_email_association.name
+        email_error_key = errors.keys.detect do |key|
+          [association_name.to_s, "#{association_name}.email"].include?(key.to_s)
+        end
+        return unless email_error_key.present?
 
-        email_errors.each do |error|
-          errors.add(:email, error)
+        email_errors =
+          if errors.respond_to?(:details)
+            errors
+              .details[email_error_key]
+              .map { |e| e[:error] }
+              .zip(errors.delete(email_error_key) || [])
+          else
+            errors.delete(email_error_key)
+          end
+
+        email_errors.each do |type, message|
+          errors.add(:email, type, message: message)
         end
       end
 

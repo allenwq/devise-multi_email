@@ -97,6 +97,7 @@ RSpec.describe 'Devise Mutil Email' do
         user = UserWithNestedAttributes.new(username: 'user', email: 'inavlid_email@')
         expect(user).not_to be_valid
         expect(user.errors[:email]).to be_present
+        expect(user.errors.details[:email].first[:error]).to eq(:invalid) if user.errors.respond_to?(:details)
       end
     end
   end

@@ -63,7 +63,7 @@ module Devise
       module ClassMethods
         def find_first_by_auth_conditions(tainted_conditions, opts = {})
           filtered_conditions = devise_parameter_filter.filter(tainted_conditions.dup)
-          criteria = filtered_conditions.extract!(:email, :unconfirmed_email)
+          criteria = filtered_conditions.extract!(:email, :unconfirmed_email, :unconfirmed_token)
 
           if criteria.keys.any?
             conditions = filtered_conditions.to_h.merge(opts).

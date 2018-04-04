@@ -161,7 +161,7 @@ RSpec.describe 'Confirmable', type: :feature do
       end
 
       context 'with non-primary email' do
-        it 'shows the error message' do
+        it 'signs the user in' do
           user = create_user
           secondary_email = create_email(user, confirm: false)
           visit new_user_session_path
@@ -170,8 +170,8 @@ RSpec.describe 'Confirmable', type: :feature do
           fill_in 'user_password', with: '12345678'
           click_button 'Log in'
 
-          expect(current_path).to eq new_user_session_path
-          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
+          expect(current_path).to eq root_path
+          expect(page).to have_selector('div', text: 'Signed in successfully.')
         end
       end
     end

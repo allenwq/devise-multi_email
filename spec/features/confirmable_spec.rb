@@ -36,6 +36,40 @@ RSpec.describe 'Confirmable', type: :feature do
     expect(user.primary_email_record).to be_confirmed
   end
 
+  describe '#email=' do
+    context 'when unconfirmed access is disallowed' do
+      it 'does not change primary email' do
+        user = create_user
+        first_email = user.primary_email_record
+        user.email = generate_email
+
+        expect(user.primary_email_record.email).to eq(first_email.email)
+      end
+    end
+
+    context 'when unconfirmed access is allowed' do
+      before do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 2.days
+        end
+      end
+
+      after do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 0.day
+        end
+      end
+
+      it 'changes primary email to the new email' do
+        user = create_user
+        second_email = generate_email
+        user.email = second_email
+
+        expect(user.primary_email_record.email).to eq(second_email)
+      end
+    end
+  end
+
   describe 'Change primary email' do
     it 'persists the new primary email when confirmed' do
       user = create_user

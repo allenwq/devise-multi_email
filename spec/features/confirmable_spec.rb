@@ -36,6 +36,40 @@ RSpec.describe 'Confirmable', type: :feature do
     expect(user.primary_email_record).to be_confirmed
   end
 
+  describe '#email=' do
+    context 'when unconfirmed access is disallowed' do
+      it 'does not change primary email' do
+        user = create_user
+        first_email = user.primary_email_record
+        user.email = generate_email
+
+        expect(user.primary_email_record.email).to eq(first_email.email)
+      end
+    end
+
+    context 'when unconfirmed access is allowed' do
+      before do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 2.days
+        end
+      end
+
+      after do
+        Devise.setup do |config|
+          config.allow_unconfirmed_access_for = 0.day
+        end
+      end
+
+      it 'changes primary email to the new email' do
+        user = create_user
+        second_email = generate_email
+        user.email = second_email
+
+        expect(user.primary_email_record.email).to eq(second_email)
+      end
+    end
+  end
+
   describe 'Change primary email' do
     it 'persists the new primary email when confirmed' do
       user = create_user
@@ -161,7 +195,7 @@ RSpec.describe 'Confirmable', type: :feature do
       end
 
       context 'with non-primary email' do
-        it 'signs the user in' do
+        it 'shows the error message' do
           user = create_user
           secondary_email = create_email(user, confirm: false)
           visit new_user_session_path
@@ -170,8 +204,8 @@ RSpec.describe 'Confirmable', type: :feature do
           fill_in 'user_password', with: '12345678'
           click_button 'Log in'
 
-          expect(current_path).to eq root_path
-          expect(page).to have_selector('div', text: 'Signed in successfully.')
+          expect(current_path).to eq new_user_session_path
+          expect(page).to have_selector('div#flash_alert', text: 'You have to confirm your email address before continuing.')
         end
       end
     end

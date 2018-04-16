@@ -1,8 +1,12 @@
 module RailsTestHelpers
+  def generate_email
+    "user_#{SecureRandom.hex}@test.com"
+  end
+
   def create_user(options={})
     user = User.create!(
         username: 'usertest',
-        email: options[:email] || "user_#{SecureRandom.hex}@test.com",
+        email: options[:email] || generate_email,
         password: options[:password] || '12345678',
         password_confirmation: options[:password] || '12345678',
         created_at: Time.now.utc
@@ -13,8 +17,8 @@ module RailsTestHelpers
   end
 
   def create_email(user, options = {})
-    email_address = user.multi_email.format_email(options[:email] || "user_#{SecureRandom.hex}@test.com")
-    user.email = email_address
+    email_address = options[:email] || generate_email
+    user.multi_email.find_or_build_for_email(email_address)
 
     email = user.emails.to_a.find { |record| record.email == email_address }
     email.update_attribute(:confirmation_sent_at, options[:confirmation_sent_at]) if options[:confirmation_sent_at]

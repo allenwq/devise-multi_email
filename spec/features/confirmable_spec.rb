@@ -45,6 +45,14 @@ RSpec.describe 'Confirmable', type: :feature do
 
         expect(user.primary_email_record.email).to eq(first_email.email)
       end
+
+      it 'changes primary email if confirmed' do
+        user = create_user
+        new_email = create_email(user, confirm: true)
+        user.email = new_email.email
+
+        expect(user.primary_email_record.email).to eq(new_email.email)
+      end
     end
 
     context 'when unconfirmed access is allowed' do
@@ -62,77 +70,10 @@ RSpec.describe 'Confirmable', type: :feature do
 
       it 'changes primary email to the new email' do
         user = create_user
-        second_email = generate_email
-        user.email = second_email
+        new_email = generate_email
+        user.email = new_email
 
-        expect(user.primary_email_record.email).to eq(second_email)
-      end
-    end
-  end
-
-  describe 'Change primary email' do
-    it 'persists the new primary email when confirmed' do
-      user = create_user
-      first_email = user.primary_email_record
-      second_email = create_email(user)
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-
-      user.reload
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-
-      user.email = second_email.email
-
-      expect(user.primary_email_record.email).to eq(second_email.email)
-
-      user.save
-      user.reload
-
-      expect(user.primary_email_record.email).to eq(second_email.email)
-    end
-
-    it 'does not persist the new primary email when not confirmed' do
-      user = create_user
-      first_email = user.primary_email_record
-      second_email = create_email(user, confirm: false)
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-
-      user.reload
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-
-      user.email = second_email.email
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-
-      user.save
-      user.reload
-
-      expect(user.primary_email_record.email).to eq(first_email.email)
-    end
-
-    context 'when using multi_email API' do
-      it 'persists the new primary email when not confirmed' do
-        user = create_user
-        first_email = user.primary_email_record
-        second_email = create_email(user, confirm: false)
-
-        expect(user.primary_email_record.email).to eq(first_email.email)
-
-        user.reload
-
-        expect(user.primary_email_record.email).to eq(first_email.email)
-
-        user.multi_email.change_primary_email_to(second_email.email, allow_unconfirmed: true)
-
-        expect(user.primary_email_record.email).to eq(second_email.email)
-
-        user.save
-        user.reload
-
-        expect(user.primary_email_record.email).to eq(second_email.email)
+        expect(user.primary_email_record.email).to eq(new_email)
       end
     end
   end

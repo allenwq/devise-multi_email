@@ -26,6 +26,10 @@ RailsApp::Application.configure do
     config.static_cache_control = 'public, max-age=3600'
   end
 
+  if Rails.version >= '5.2.0'
+    config.active_record.sqlite3.represent_boolean_as_integer = true
+  end
+
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false

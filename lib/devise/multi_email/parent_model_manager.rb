@@ -62,7 +62,7 @@ module Devise
 
       # Gets the email records that have not been deleted
       def filtered_emails(options = {})
-        emails.to_a.reject(&:destroyed?).reject(&:marked_for_destruction?)
+        emails.reject(&:destroyed?).reject(&:marked_for_destruction?)
       end
 
       def confirmed_emails

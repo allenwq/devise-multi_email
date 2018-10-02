@@ -45,12 +45,6 @@ module Devise
                  :confirmation_token, :confirmed_at, :confirmed_at=, :confirmation_sent_at, :confirm, :confirmed?, :unconfirmed_email,
                  :reconfirmation_required?, :pending_reconfirmation?, to: Devise::MultiEmail.primary_email_method_name, allow_nil: true
 
-        %i{skip_confirmation! skip_confirmation_notification! skip_reconfirmation!}.each do |key|
-          define_method(key) do
-            multi_email.emails.each(&key)
-          end
-        end
-
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)

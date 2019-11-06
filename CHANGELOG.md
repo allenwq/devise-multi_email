@@ -1,3 +1,7 @@
+### 3.0.0 - 2019-11-06
+* Deprecate the support of Rails 4 (although it might still work)
+* Fix warnings in Rails 6
+
 ### 2.0.1 - 2017-05-16
 
 * Refactored to simplify some logic and start moving toward mimicking default Devise lifecycle behavior

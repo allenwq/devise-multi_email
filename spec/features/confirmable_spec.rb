@@ -75,6 +75,22 @@ RSpec.describe 'Confirmable', type: :feature do
 
         expect(user.primary_email_record.email).to eq(new_email)
       end
+
+      context 'an unconfirmed access is indefinite' do
+        before do
+          Devise.setup do |config|
+            config.allow_unconfirmed_access_for = nil
+          end
+        end
+
+        it 'changes primary email to the new email' do
+          user = create_user
+          new_email = generate_email
+          user.email = new_email
+
+          expect(user.primary_email_record.email).to eq(new_email)
+        end
+      end
     end
   end
 

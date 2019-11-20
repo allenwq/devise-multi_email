@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Devise Mutil Email' do
+RSpec.describe 'Devise Multi Email' do
   describe '.required_fields' do
     it 'does not raise any errors' do
       expect { Devise::Models.check_fields!(User) }.to_not raise_error

@@ -26,7 +26,7 @@ RailsApp::Application.configure do
     config.static_cache_control = 'public, max-age=3600'
   end
 
-  if Rails.version >= '5.2.0'
+  if Rails.version >= '5.2.0' && Rails.version < '6.0'
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end
 

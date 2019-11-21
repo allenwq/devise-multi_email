@@ -101,4 +101,10 @@ RSpec.describe 'Devise Mutil Email' do
       end
     end
   end
+
+  describe 'the gem itself' do
+    it 'presents a VERSION' do
+      expect(Devise::MultiEmail::VERSION).to be_a(String)
+    end
+  end
 end

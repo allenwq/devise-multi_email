@@ -6,6 +6,12 @@ RSpec.describe Devise::MultiEmail::ParentModelManager, type: :model do
   let(:new_email) { generate_email }
 
   describe 'multi_email API' do
+    describe '#current_email_record' do
+      it 'returns the primary email if not logged in' do
+        expect(user.multi_email.current_email_record).to be user.primary_email_record
+      end
+    end
+
     describe '#change_primary_email_to' do
       it 'un-sets primary email if given nil' do
         expect(user.primary_email_record).not_to be_nil

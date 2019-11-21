@@ -176,7 +176,7 @@ You can do `email.send_confirmation_instructions` for each email individually, b
 
 ## Wiki
 
-[Migrating exiting user records](https://github.com/allenwq/devise-multi_email/wiki/Migrating-existing-user-records)
+[Migrating existing user records](https://github.com/allenwq/devise-multi_email/wiki/Migrating-existing-user-records)
 
 ## Development
 

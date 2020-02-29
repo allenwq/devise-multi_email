@@ -7,4 +7,4 @@ gemfile:
   - gemfiles/rails_5_2.gemfile
   - gemfiles/rails_5_1.gemfile
   - gemfiles/rails_6_0.gemfile
-before_install: gem install bundler
+

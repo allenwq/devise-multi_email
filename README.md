@@ -10,7 +10,7 @@ Letting [Devise](https://github.com/plataformatec/devise) support multiple email
 
 ## Getting Started
 
-Add this line to your application's `Gemfile`, _devise-multi_email_ has been tested with Devise 4.0 and rails 4.2:
+Add this line to your application's `Gemfile`:
 
 ```ruby
 gem 'devise-multi_email'

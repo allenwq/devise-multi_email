@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Devise Mutil Email' do
+RSpec.describe 'Devise Multi Email' do
   describe '.required_fields' do
     it 'does not raise any errors' do
       expect { Devise::Models.check_fields!(User) }.to_not raise_error
@@ -99,6 +99,12 @@ RSpec.describe 'Devise Mutil Email' do
         expect(user.errors[:email]).to be_present
         expect(user.errors.details[:email].first[:error]).to eq(:invalid) if user.errors.respond_to?(:details)
       end
+    end
+  end
+
+  describe 'the gem itself' do
+    it 'presents a VERSION' do
+      expect(Devise::MultiEmail::VERSION).to be_a(String)
     end
   end
 end

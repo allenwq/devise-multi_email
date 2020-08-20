@@ -48,7 +48,7 @@ module Devise
         # In case email updates are being postponed, don't change anything
         # when the postpone feature tries to switch things back
         def email=(new_email)
-          multi_email.change_primary_email_to(new_email, allow_unconfirmed: Devise.allow_unconfirmed_access_for > 0.days)
+          multi_email.change_primary_email_to(new_email, allow_unconfirmed: unconfirmed_access_possible?)
         end
 
         # This need to be forwarded to the email that the user logged in with
@@ -93,6 +93,11 @@ module Devise
         end
 
       private
+
+        def unconfirmed_access_possible?
+          Devise.allow_unconfirmed_access_for.nil? || \
+            Devise.allow_unconfirmed_access_for > 0.days
+        end
 
         module ClassMethods
           delegate :confirm_by_token, :send_confirmation_instructions, to: 'multi_email_association.model_class', allow_nil: false

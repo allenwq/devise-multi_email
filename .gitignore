@@ -10,3 +10,4 @@
 /spec/rails_app/log/*
 /.ruby-version
 /.idea/
+/gemfiles/*gemfile.lock

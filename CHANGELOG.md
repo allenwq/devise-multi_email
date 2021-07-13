@@ -1,3 +1,6 @@
+### Unreleased
+* Fix ActiveModel::Errors#keys deprecation in Rails 6.1
+
 ### 3.0.0 - 2019-11-06
 * Deprecate the support of Rails 4 (although it might still work)
 * Fix warnings in Rails 6

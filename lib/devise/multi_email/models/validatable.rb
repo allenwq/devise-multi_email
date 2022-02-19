@@ -66,7 +66,7 @@ module Devise
 
       def propagate_email_errors
         association_name = self.class.multi_email_association.name
-        email_error_key = errors.attribute_names.detect do |key|
+        email_error_key = errors_attribute_names.detect do |key|
           [association_name.to_s, "#{association_name}.email"].include?(key.to_s)
         end
         return unless email_error_key.present?
@@ -84,6 +84,10 @@ module Devise
         email_errors.each do |type, message|
           errors.add(:email, type, message: message)
         end
+      end
+
+      def errors_attribute_names
+        errors.respond_to?(:attribute_names) ? errors.attribute_names : errors.keys
       end
 
       module ClassMethods

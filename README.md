@@ -13,7 +13,7 @@ Letting [Devise](https://github.com/plataformatec/devise) support multiple email
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem 'devise-multi-email'
+gem 'devise-multi_email_revived'
 ```
 
 Note: if you've been using this gem for a while, it is now being

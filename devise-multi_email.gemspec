@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'devise/multi-email/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'devise-multi-email'
+  spec.name          = 'devise-multi_email_revived'
   spec.version       = Devise::MultiEmail::VERSION
   spec.authors       = ['ALLEN WANG QIANG', 'Joel Van Horn', 'Micah Gideon Modell']
   spec.email         = ['rovingbreeze@gmail.com', 'joel@joelvanhorn.com', 'micah.modell@gmail.com']

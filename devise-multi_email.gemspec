@@ -1,16 +1,16 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'devise/multi_email/version'
+require 'devise/multi-email/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'devise-multi_email'
+  spec.name          = 'devise-multi-email'
   spec.version       = Devise::MultiEmail::VERSION
-  spec.authors       = ['ALLEN WANG QIANG', 'Joel Van Horn']
-  spec.email         = ['rovingbreeze@gmail.com', 'joel@joelvanhorn.com']
+  spec.authors       = ['ALLEN WANG QIANG', 'Joel Van Horn', 'Micah Gideon Modell']
+  spec.email         = ['rovingbreeze@gmail.com', 'joel@joelvanhorn.com', 'micah.modell@gmail.com']
 
   spec.summary       = 'Let devise support multiple emails.'
   spec.description   = 'Devise authenticatable, confirmable and validatable with multiple emails.'
-  spec.homepage      = 'https://github.com/mgmodell/devise-multi_email.git'
+  spec.homepage      = 'https://github.com/allenwq/devise-multi_email.git'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

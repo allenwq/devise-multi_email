@@ -49,7 +49,7 @@ RSpec.describe 'Authenticatable', type: :feature do
         click_button 'Log in'
 
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', text: 'Invalid Email or password.')
+        expect(page).to have_selector('div', text: 'Invalid email or password.')
       end
     end
 

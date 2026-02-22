@@ -6,15 +6,20 @@ Letting [Devise](https://github.com/plataformatec/devise) support multiple email
 - Recover the password with any of the emails
 - Validations for multiple emails
 
-`:multi_email_authenticatable`, `:multi_email_confirmable` and `:multi_email_validatable` are provided by _devise-multi_email_.
+`:multi_email_authenticatable`, `:multi_email_confirmable` and `:multi_email_validatable` are provided by _devise-multi-email_.
 
 ## Getting Started
 
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem 'devise-multi_email'
+gem 'devise-multi-email'
 ```
+
+Note: if you've been using this gem for a while, it is now being
+published to [RubyGems](https://www.rubygems.org) under a new package
+name due to maintenance continuity issues. Please update your `Gemfile`
+accordingly.
 
 Suppose you have already setup Devise, your `User` model might look like this:
 
@@ -24,7 +29,7 @@ class User < ActiveRecord::Base
 end
 ```
 
-In order to let your `User` support multiple emails, with _devise-multi_email_ what you need to do is just:
+In order to let your `User` support multiple emails, with _devise-multi-email_ what you need to do is just:
 
 ```ruby
 class User < ActiveRecord::Base
@@ -182,7 +187,7 @@ You can do `email.send_confirmation_instructions` for each email individually, b
 
 After checking out the repo, run `bundle install` to install dependencies.
 
-Then, run `bundle exec rake` to run the RSpec test suite. 
+Then, run `bundle exec rake` to run the RSpec test suite.
 
 ## Contributing
 

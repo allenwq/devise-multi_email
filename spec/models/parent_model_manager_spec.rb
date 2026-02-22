@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'devise/multi_email/parent_model_manager'
 
 RSpec.describe Devise::MultiEmail::ParentModelManager, type: :model do
   subject(:user) { create_user }

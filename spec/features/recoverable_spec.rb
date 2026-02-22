@@ -6,13 +6,13 @@ RSpec.describe 'Recoverable', type: :feature do
     click_link 'Forgot your password?'
   end
 
-  def request_forgot_password(&block)
+  def request_forgot_password
     visit_new_password_path
 
     fill_in 'user_email', with: 'user@test.com'
     yield if block_given?
 
-    click_button 'Send me reset password instructions'
+    click_button 'Send me password reset instructions'
   end
 
   context 'with primary email' do
@@ -25,7 +25,8 @@ RSpec.describe 'Recoverable', type: :feature do
       end
 
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+      expect(page).to have_selector('div',
+                                    text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
     end
 
     context 'when not confirmed' do
@@ -38,7 +39,8 @@ RSpec.describe 'Recoverable', type: :feature do
         end
 
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+        expect(page).to have_selector('div',
+                                      text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
     end
   end
@@ -57,7 +59,8 @@ RSpec.describe 'Recoverable', type: :feature do
 
       it 'sends the password reset email' do
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+        expect(page).to have_selector('div',
+                                      text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
 
       it 'redirects to password reset page when visiting the link' do
@@ -68,7 +71,8 @@ RSpec.describe 'Recoverable', type: :feature do
         fill_in 'user_password_confirmation', with: 'abcdefgh'
         click_button 'Change my password'
 
-        expect(page).to have_selector('div', text: 'Your password has been changed successfully. You are now signed in.')
+        expect(page).to have_selector('div',
+                                      text: 'Your password has been changed successfully. You are now signed in.')
       end
     end
 
@@ -83,7 +87,8 @@ RSpec.describe 'Recoverable', type: :feature do
         end
 
         expect(current_path).to eq new_user_session_path
-        expect(page).to have_selector('div', text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+        expect(page).to have_selector('div',
+                                      text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
     end
   end

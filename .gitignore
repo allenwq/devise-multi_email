@@ -11,3 +11,5 @@
 /.ruby-version
 /.idea/
 /gemfiles/*gemfile.lock
+**/*.DS_Store
+**/*.swp

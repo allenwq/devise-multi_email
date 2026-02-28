@@ -14,3 +14,4 @@
 **/*.DS_Store
 **/*.swp
 *.gem
+.rake_tasks

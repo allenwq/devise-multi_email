@@ -13,3 +13,4 @@
 /gemfiles/*gemfile.lock
 **/*.DS_Store
 **/*.swp
+*.gem

@@ -244,8 +244,8 @@ GEM
       sprockets-rails
       tilt
     securerandom (0.4.1)
-    spring (2.1.1)
-    spring-watcher-listen (2.0.1)
+    spring (4.4.2)
+    spring-watcher-listen (2.1.0)
       listen (>= 2.7, < 4.0)
       spring (>= 1.2, < 3.0)
     sprockets (4.2.2)
@@ -313,7 +313,7 @@ DEPENDENCIES
   rails (~> 7.2)
   sass-rails (~> 6.0)
   spring
-  spring-watcher-listen (~> 2.0.0)
+  spring-watcher-listen (~> 2.1.0)
   sqlite3
   turbolinks (~> 5)
   tzinfo-data

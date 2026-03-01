@@ -6,6 +6,10 @@
 version: 2
 updates:
   - package-ecosystem: "bundler" # See documentation for possible values
-    directory: "/examples/rails7_app" # Location of package manifests
+    directories: # Location of package manifests
+      - "/examples/rails7_app"
+      - "/examples/rails8_0_app"
+      - "/examples/rails8_1_app"
+      - "/gemfiles/"
     schedule:
       interval: "weekly"

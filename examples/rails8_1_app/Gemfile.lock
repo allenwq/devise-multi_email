@@ -126,9 +126,10 @@ GEM
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
     json (2.18.1)
-    listen (3.0.8)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
+    listen (3.10.0)
+      logger
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     logger (1.7.0)
     loofah (2.25.0)
       crass (~> 1.0.2)
@@ -309,7 +310,7 @@ DEPENDENCIES
   devise-multi_email
   jbuilder (~> 2.5)
   jquery-rails
-  listen (~> 3.0.5)
+  listen (~> 3.10.0)
   puma (~> 5.6)
   rails (~> 8.1)
   sass-rails (~> 5.0)
@@ -366,7 +367,7 @@ CHECKSUMS
   jbuilder (2.14.1) sha256=4eb26376ff60ef100cb4fd6fd7533cd271f9998327e86adf20fd8c0e69fabb42
   jquery-rails (4.6.1) sha256=619f3496cdcdeaae1fd6dafa52dbac3fc45b745d4e09712da4184a16b3a8d9c0
   json (2.18.1) sha256=fe112755501b8d0466b5ada6cf50c8c3f41e897fa128ac5d263ec09eedc9f986
-  listen (3.0.8) sha256=91845635a094f81de2af4ec334340dd8458d9b86486471c2dc9747e7173c1ed0
+  listen (3.10.0) sha256=c6e182db62143aeccc2e1960033bebe7445309c7272061979bb098d03760c9d2
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   loofah (2.25.0) sha256=df5ed7ac3bac6a4ec802df3877ee5cc86d027299f8952e6243b3dac446b060e6
   mail (2.9.0) sha256=6fa6673ecd71c60c2d996260f9ee3dd387d4673b8169b502134659ece6d34941

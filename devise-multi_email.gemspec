@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '<5.0'
   spec.add_development_dependency 'capybara', '<4.0'
-  spec.add_development_dependency 'coveralls', '<=0.8.23'
+  spec.add_development_dependency 'coveralls_reborn', '<=0.29.0'
   spec.add_development_dependency 'rake', '<14.0'
   spec.add_development_dependency 'rspec', '<4.0'
   spec.add_development_dependency 'sqlite3', '<=2.9.0'

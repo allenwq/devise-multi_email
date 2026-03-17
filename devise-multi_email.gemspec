@@ -1,9 +1,9 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'devise/multi-email/version'
+require 'devise/multi_email/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'devise-multi_email_revived'
+  spec.name          = 'devise-multi_email'
   spec.version       = Devise::MultiEmail::VERSION
   spec.authors       = ['ALLEN WANG QIANG', 'Joel Van Horn', 'Micah Gideon Modell']
   spec.email         = ['rovingbreeze@gmail.com', 'joel@joelvanhorn.com', 'micah.modell@gmail.com']
@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 3.0', '< 5.0'
+  spec.required_ruby_version = '>= 3.0'
 
   spec.add_runtime_dependency 'devise', '<6.0'
 

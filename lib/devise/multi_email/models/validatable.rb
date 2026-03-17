@@ -7,8 +7,8 @@ module Devise
 
       included do
         validates_presence_of   :email, if: :email_required?
-        validates_uniqueness_of :email, allow_blank: true, case_sensitive: true, if: :will_save_change_to_email?
-        validates_format_of     :email, with: email_regexp, allow_blank: true, if: :will_save_change_to_email?
+        validates_uniqueness_of :email, allow_blank: true, if: :email_changed?
+        validates_format_of     :email, with: email_regexp, allow_blank: true, if: :email_changed?
       end
 
       def email_required?

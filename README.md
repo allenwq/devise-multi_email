@@ -146,17 +146,6 @@ end
 
 You can find the detailed configurations in the [rails 5 example app](https://github.com/allenwq/devise-multi_email/tree/master/examples/rails5_app).
 
-## ActiveJob Integration
-
-The [Devise README](https://github.com/plataformatec/devise#activejob-integration) describes how to use ActiveJob to deliver emails in the background. Normally you would place the following code in your `User` model, however when using _devise-multi_email_ you should place this in the `Email` model.
-
-```ruby
-# models/email.rb
-def send_devise_notification(notification, *args)
-  devise_mailer.send(notification, self, *args).deliver_later
-end
-```
-
 ## What's more
 
 The gem works with all other Devise modules as expected -- you don't need to add the "multi_email" prefix.

@@ -4,7 +4,7 @@ require 'devise'
 module Devise
   module MultiEmail
     class << self
-      def configure(&block)
+      def configure
         yield self
       end
 
@@ -33,7 +33,7 @@ module Devise
       end
 
       def parent_association_name=(name)
-        @parent_association_name = name.try(:to_sym)
+        @parent_association_name = name.try(:to_sym) unless '' == name
       end
 
       def emails_association_name
@@ -41,7 +41,7 @@ module Devise
       end
 
       def emails_association_name=(name)
-        @emails_association_name = name.try(:to_sym)
+        @emails_association_name = name.try(:to_sym) unless '' == name
       end
 
       def primary_email_method_name
@@ -49,7 +49,7 @@ module Devise
       end
 
       def primary_email_method_name=(name)
-        @primary_email_method_name = name.try(:to_sym)
+        @primary_email_method_name = name.try(:to_sym) unless '' == name
       end
     end
   end

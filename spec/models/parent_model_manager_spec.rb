@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'devise/multi_email/parent_model_manager'
+require 'devise/multi_email/email_model_manager'
 
 RSpec.describe Devise::MultiEmail::ParentModelManager, type: :model do
   subject(:user) { create_user }
@@ -41,6 +42,31 @@ RSpec.describe Devise::MultiEmail::ParentModelManager, type: :model do
         new_email_record.confirm
         expect(user.multi_email.confirmed_emails).to include(new_email_record)
       end
+    end
+  end
+end
+
+# This was authored by CoPilot because I have little experience with RSpec. I've reviewed it and it appears
+# to achieve the goals of issue #51. The tests run and now I just need to verify that it actually improves
+# the code coverage as hoped.
+RSpec.describe Devise::MultiEmail::EmailModelManager, type: :model do
+  let(:user) { create_user }
+  let(:email_record) { user.primary_email_record }
+  let(:email_model_manager) { Devise::MultiEmail::EmailModelManager.new(email_record) }
+
+  describe '#parent' do
+    it 'delegates to the @email_record\'s configured multi_email_association.name' do
+      # Verify the configuration returns the expected association name
+      association_name = email_record.class.multi_email_association.name
+      expect(association_name).to eq(:user)
+
+      # Test that parent method delegates to the configured association
+      expect(email_model_manager.parent).to eq(user)
+      expect(email_model_manager.parent).to eq(email_record.__send__(association_name))
+    end
+
+    it 'returns the same result as calling the association method directly' do
+      expect(email_model_manager.parent).to eq(email_record.user)
     end
   end
 end

@@ -1,14 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe Devise::MultiEmail do
-  # Reset configuration to defaults before each test
-  before do
+  # Reset configuration to defaults before and after each test to prevent
+  # state leakage to other spec files when tests run in random order.
+  def reset_configuration!
     described_class.instance_variable_set(:@autosave_emails, false)
     described_class.instance_variable_set(:@only_login_with_primary_email, false)
     described_class.instance_variable_set(:@parent_association_name, nil)
     described_class.instance_variable_set(:@emails_association_name, nil)
     described_class.instance_variable_set(:@primary_email_method_name, nil)
   end
+
+  before { reset_configuration! }
+  after  { reset_configuration! }
 
   describe '.configure' do
     it 'yields self to the configuration block' do

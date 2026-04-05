@@ -67,8 +67,8 @@ RSpec.describe 'Recoverable', type: :feature do
                                       text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
       end
 
-      it 'sends the password reset email to the entered email address, not the primary email' do
-        expect(ActionMailer::Base.deliveries.last.to).to eq [secondary_email.email]
+      it 'sends the password reset email to the primary email (default strategy)' do
+        expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
       end
 
       it 'redirects to password reset page when visiting the link' do
@@ -116,13 +116,13 @@ RSpec.describe 'Recoverable', type: :feature do
     end
   end
 
-  context 'when send_reset_password_to_login_email is false (global config)' do
+  context 'when password_reset_email_strategy is :request (global config)' do
     around do |example|
-      original = Devise::MultiEmail.send_reset_password_to_login_email?
-      Devise::MultiEmail.send_reset_password_to_login_email = false
+      original = Devise::MultiEmail.password_reset_email_strategy
+      Devise::MultiEmail.password_reset_email_strategy = :request
       example.run
     ensure
-      Devise::MultiEmail.send_reset_password_to_login_email = original
+      Devise::MultiEmail.password_reset_email_strategy = original
     end
 
     let(:user) { create_user }
@@ -136,43 +136,44 @@ RSpec.describe 'Recoverable', type: :feature do
       end
     end
 
-    it 'sends the password reset email to the primary email, not the entered email' do
-      expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
+    it 'sends the password reset email to the entered email address, not the primary email' do
+      expect(ActionMailer::Base.deliveries.last.to).to eq [secondary_email.email]
     end
   end
 
-  context 'when send_reset_password_to_login_email is overridden per-instance' do
+  context 'when send_reset_password_instructions_notification is called with email: keyword' do
     let(:user) { create_user }
     let(:secondary_email) { create_email(user) }
 
-    it 'sends to primary email when instance override is false' do
-      user.current_login_email = secondary_email.email
-      user.send_reset_password_to_login_email = false
+    before { user.current_login_email = secondary_email.email }
 
+    it 'sends to primary email when email: :primary' do
       index = ActionMailer::Base.deliveries.count
-      user.send_reset_password_instructions
+      user.send(:send_reset_password_instructions_notification, 'token', email: :primary)
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
     end
 
-    it 'sends to the login email when instance override is true' do
-      user.current_login_email = secondary_email.email
-      user.send_reset_password_to_login_email = true
-
+    it 'sends to the request email when email: :request' do
       index = ActionMailer::Base.deliveries.count
-      user.send_reset_password_instructions
+      user.send(:send_reset_password_instructions_notification, 'token', email: :request)
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]
     end
 
-    it 'falls back to global config when instance override is nil' do
-      user.current_login_email = secondary_email.email
-      user.send_reset_password_to_login_email = nil  # clear instance override
-
+    it 'uses the global config (:primary by default) when no email: keyword is given' do
       index = ActionMailer::Base.deliveries.count
-      user.send_reset_password_instructions
+      user.send(:send_reset_password_instructions_notification, 'token')
 
-      # Global default is true, so login email should be used
+      expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
+    end
+
+    it 'uses global config :request when no email: keyword is given and strategy is :request' do
+      Devise::MultiEmail.password_reset_email_strategy = :request
+      index = ActionMailer::Base.deliveries.count
+      user.send(:send_reset_password_instructions_notification, 'token')
+      Devise::MultiEmail.password_reset_email_strategy = :primary
+
       expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]
     end
   end

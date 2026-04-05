@@ -3,8 +3,10 @@ require 'devise'
 
 module Devise
   module MultiEmail
-    # Default: send password reset to the address the user entered, not always the primary.
-    @send_reset_password_to_login_email = true
+    # Default strategy for password reset emails: :primary or :request.
+    # :primary (default) sends to the user's primary email address.
+    # :request sends to the email address used in the forgot-password form.
+    @password_reset_email_strategy = :primary
 
     class << self
       def configure
@@ -31,16 +33,24 @@ module Devise
         @only_login_with_primary_email = (value == true)
       end
 
-      # When true (default), password reset emails are sent to the address the
-      # user typed into the forgot-password form rather than the primary email.
-      # Set to false to always send password reset emails to the primary email.
+      # Controls which address receives password reset emails by default.
+      # Accepts :primary (default) or :request.
+      # :primary — always send to the user's primary email.
+      # :request — send to the email address the user entered in the forgot-password form.
+      # This default can be overridden per call via the email: keyword on
+      # send_reset_password_instructions_notification.
 
-      def send_reset_password_to_login_email?
-        @send_reset_password_to_login_email == true
+      def password_reset_email_strategy
+        @password_reset_email_strategy
       end
 
-      def send_reset_password_to_login_email=(value)
-        @send_reset_password_to_login_email = (value == true)
+      def password_reset_email_strategy=(value)
+        value = value.try(:to_sym)
+        if value == :request
+          @password_reset_email_strategy = :request
+        else
+          @password_reset_email_strategy = :primary
+        end
       end
 
       def parent_association_name

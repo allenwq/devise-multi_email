@@ -6,7 +6,7 @@ RSpec.describe Devise::MultiEmail do
   def reset_configuration!
     described_class.instance_variable_set(:@autosave_emails, false)
     described_class.instance_variable_set(:@only_login_with_primary_email, false)
-    described_class.instance_variable_set(:@send_reset_password_to_login_email, true)
+    described_class.instance_variable_set(:@password_reset_email_strategy, :primary)
     described_class.instance_variable_set(:@parent_association_name, nil)
     described_class.instance_variable_set(:@emails_association_name, nil)
     described_class.instance_variable_set(:@primary_email_method_name, nil)
@@ -24,7 +24,7 @@ RSpec.describe Devise::MultiEmail do
       described_class.configure do |config|
         config.autosave_emails = true
         config.only_login_with_primary_email = true
-        config.send_reset_password_to_login_email = false
+        config.password_reset_email_strategy = :request
         config.parent_association_name = :account
         config.emails_association_name = :email_addresses
         config.primary_email_method_name = :main_email
@@ -32,7 +32,7 @@ RSpec.describe Devise::MultiEmail do
 
       expect(described_class.autosave_emails?).to be true
       expect(described_class.only_login_with_primary_email?).to be true
-      expect(described_class.send_reset_password_to_login_email?).to be false
+      expect(described_class.password_reset_email_strategy).to eq(:request)
       expect(described_class.parent_association_name).to eq(:account)
       expect(described_class.emails_association_name).to eq(:email_addresses)
       expect(described_class.primary_email_method_name).to eq(:main_email)
@@ -119,42 +119,54 @@ RSpec.describe Devise::MultiEmail do
     end
   end
 
-  describe '.send_reset_password_to_login_email' do
-    describe 'getter (.send_reset_password_to_login_email?)' do
-      it 'returns true by default' do
-        expect(described_class.send_reset_password_to_login_email?).to be true
+  describe '.password_reset_email_strategy' do
+    describe 'getter (.password_reset_email_strategy)' do
+      it 'returns :primary by default' do
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
       end
 
-      it 'returns false when set to false' do
-        described_class.send_reset_password_to_login_email = false
-        expect(described_class.send_reset_password_to_login_email?).to be false
+      it 'returns :request when set to :request' do
+        described_class.password_reset_email_strategy = :request
+        expect(described_class.password_reset_email_strategy).to eq(:request)
       end
 
-      it 'returns true when set to true explicitly' do
-        described_class.send_reset_password_to_login_email = true
-        expect(described_class.send_reset_password_to_login_email?).to be true
+      it 'returns :primary when set back to :primary' do
+        described_class.password_reset_email_strategy = :request
+        described_class.password_reset_email_strategy = :primary
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
       end
     end
 
-    describe 'setter (.send_reset_password_to_login_email=)' do
-      it 'sets to true when given true' do
-        described_class.send_reset_password_to_login_email = true
-        expect(described_class.instance_variable_get(:@send_reset_password_to_login_email)).to be true
+    describe 'setter (.password_reset_email_strategy=)' do
+      it 'sets to :request when given :request' do
+        described_class.password_reset_email_strategy = :request
+        expect(described_class.instance_variable_get(:@password_reset_email_strategy)).to eq(:request)
       end
 
-      it 'sets to false when given false' do
-        described_class.send_reset_password_to_login_email = false
-        expect(described_class.instance_variable_get(:@send_reset_password_to_login_email)).to be false
+      it 'sets to :primary when given :primary' do
+        described_class.password_reset_email_strategy = :request
+        described_class.password_reset_email_strategy = :primary
+        expect(described_class.instance_variable_get(:@password_reset_email_strategy)).to eq(:primary)
       end
 
-      it 'sets to false when given truthy but not true value' do
-        described_class.send_reset_password_to_login_email = 'yes'
-        expect(described_class.instance_variable_get(:@send_reset_password_to_login_email)).to be false
+      it 'coerces string "request" to :request' do
+        described_class.password_reset_email_strategy = 'request'
+        expect(described_class.password_reset_email_strategy).to eq(:request)
       end
 
-      it 'sets to false when given nil' do
-        described_class.send_reset_password_to_login_email = nil
-        expect(described_class.instance_variable_get(:@send_reset_password_to_login_email)).to be false
+      it 'coerces string "primary" to :primary' do
+        described_class.password_reset_email_strategy = 'primary'
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+
+      it 'falls back to :primary for unknown values' do
+        described_class.password_reset_email_strategy = :unknown
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+
+      it 'falls back to :primary for nil' do
+        described_class.password_reset_email_strategy = nil
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
       end
     end
   end
@@ -308,7 +320,7 @@ RSpec.describe Devise::MultiEmail do
       # Set multiple configuration options
       described_class.autosave_emails = true
       described_class.only_login_with_primary_email = true
-      described_class.send_reset_password_to_login_email = false
+      described_class.password_reset_email_strategy = :request
       described_class.parent_association_name = :account
       described_class.emails_association_name = :addresses
       described_class.primary_email_method_name = :primary
@@ -316,7 +328,7 @@ RSpec.describe Devise::MultiEmail do
       # Verify all settings persist
       expect(described_class.autosave_emails?).to be true
       expect(described_class.only_login_with_primary_email?).to be true
-      expect(described_class.send_reset_password_to_login_email?).to be false
+      expect(described_class.password_reset_email_strategy).to eq(:request)
       expect(described_class.parent_association_name).to eq(:account)
       expect(described_class.emails_association_name).to eq(:addresses)
       expect(described_class.primary_email_method_name).to eq(:primary)

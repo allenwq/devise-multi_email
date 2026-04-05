@@ -20,38 +20,27 @@ module Devise
       module RecoverableExtensions
         extend ActiveSupport::Concern
 
-        # Per-instance override for the global send_reset_password_to_login_email
-        # configuration. Set to +true+ or +false+ to override the global setting
-        # for this object only. Set to +nil+ to revert to the global default.
-        #
-        #   user.send_reset_password_to_login_email = false
-        #   user.send_reset_password_instructions
-        attr_writer :send_reset_password_to_login_email
-
         protected
 
-        # Overrides Devise::Models::Recoverable#send_reset_password_instructions_notification
-        # to send the reset password email to the address the user entered rather than always
-        # defaulting to the primary email.
+        # Overrides Devise::Models::Recoverable#send_reset_password_instructions_notification.
         #
-        # The destination address is controlled by:
-        #   1. The per-instance @send_reset_password_to_login_email attribute (if set).
-        #   2. The global Devise::MultiEmail.send_reset_password_to_login_email? setting.
+        # The +email+ keyword controls which address receives the password reset notification:
         #
-        # When the effective setting is +true+ (the default), the notification is
-        # sent to the email address from the sign-in/forgot-password request.
-        # When +false+, it is sent to the user's primary email address.
-        def send_reset_password_instructions_notification(token)
-          use_login_email =
-            if instance_variable_defined?(:@send_reset_password_to_login_email) &&
-               !@send_reset_password_to_login_email.nil?
-              @send_reset_password_to_login_email
-            else
-              Devise::MultiEmail.send_reset_password_to_login_email?
-            end
+        # - +nil+ (default) — defers to the global +Devise::MultiEmail.password_reset_email_strategy+
+        #                     setting, which defaults to +:primary+.
+        # - +:primary+      — always send to the user's primary email address.
+        # - +:request+      — send to the email address the user entered in the
+        #                     forgot-password form (i.e. +current_login_email+).
+        #
+        # Examples:
+        #   user.send_reset_password_instructions_notification(token)             # global default
+        #   user.send_reset_password_instructions_notification(token, email: :primary)
+        #   user.send_reset_password_instructions_notification(token, email: :request)
+        def send_reset_password_instructions_notification(token, email: nil)
+          strategy = email || Devise::MultiEmail.password_reset_email_strategy
 
           opts =
-            if use_login_email && respond_to?(:current_login_email)
+            if strategy == :request && respond_to?(:current_login_email)
               login_email = current_login_email.presence
               login_email ? { to: login_email } : {}
             else

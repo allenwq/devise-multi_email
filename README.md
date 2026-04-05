@@ -161,32 +161,32 @@ end
 
 ### Controlling which address receives the password reset email
 
-By default, the password reset email is sent to **the email address the user typed** into the forgot-password form, rather than always falling back to the primary email. This makes the experience more natural when a user signs in with a non-primary address.
+By default, the password reset email is always sent to the **primary email address**, regardless of which email the user typed into the forgot-password form.
 
-You can change this globally with the `send_reset_password_to_login_email` option:
+You can change this globally with the `password_reset_email_strategy` option:
 
 ```ruby
 Devise::MultiEmail.configure do |config|
-  # Default is `true` — sends to the email the user entered in the form.
-  # Set to `false` to always send to the user's primary email instead.
-  config.send_reset_password_to_login_email = false
+  # :primary (default) — always send to the user's primary email address.
+  # :request           — send to the email the user typed in the forgot-password form.
+  config.password_reset_email_strategy = :request
 end
 ```
 
-#### Per-instance override
+#### Per-call override
 
-Individual calls can override the global setting by setting the attribute directly on the user object before calling `send_reset_password_instructions`:
+You can override the strategy for a single notification call by passing the `email:` keyword to `send_reset_password_instructions_notification`. When no keyword is given, the method falls back to the globally configured strategy (`:primary` unless otherwise configured).
 
 ```ruby
-# Send to primary email for this call only, regardless of global config
-user.send_reset_password_to_login_email = false
-user.send_reset_password_instructions
+# Send to primary email (explicit, ignores global config)
+user.send(:send_reset_password_instructions_notification, token, email: :primary)
 
-# Restore global behavior
-user.send_reset_password_to_login_email = nil
+# Send to the email the user entered in the request (explicit, ignores global config)
+user.send(:send_reset_password_instructions_notification, token, email: :request)
+
+# No keyword — uses Devise::MultiEmail.password_reset_email_strategy (default :primary)
+user.send(:send_reset_password_instructions_notification, token)
 ```
-
-Setting the attribute to `nil` clears the override and reverts to the global configuration.
 
 ## What's more
 

@@ -20,22 +20,32 @@ module Devise
       module RecoverableExtensions
         extend ActiveSupport::Concern
 
+        # Generates a reset-password token and sends the notification.
+        #
+        # The +email+ keyword controls which address receives the reset email for
+        # this specific call, overriding the global configuration:
+        #
+        # - +nil+ (default) — defers to +Devise::MultiEmail.password_reset_email_strategy+
+        #                     (itself defaults to +:primary+).
+        # - +:primary+      — always send to the user's primary email address.
+        # - +:request+      — send to the email the user entered in the forgot-password
+        #                     form (i.e. +current_login_email+).
+        #
+        # Examples:
+        #   user.send_reset_password_instructions                    # global default (:primary)
+        #   user.send_reset_password_instructions(email: :primary)
+        #   user.send_reset_password_instructions(email: :request)
+        def send_reset_password_instructions(email: nil)
+          token = set_reset_password_token
+          send_reset_password_instructions_notification(token, email: email)
+          token
+        end
+
         protected
 
         # Overrides Devise::Models::Recoverable#send_reset_password_instructions_notification.
-        #
-        # The +email+ keyword controls which address receives the password reset notification:
-        #
-        # - +nil+ (default) — defers to the global +Devise::MultiEmail.password_reset_email_strategy+
-        #                     setting, which defaults to +:primary+.
-        # - +:primary+      — always send to the user's primary email address.
-        # - +:request+      — send to the email address the user entered in the
-        #                     forgot-password form (i.e. +current_login_email+).
-        #
-        # Examples:
-        #   user.send_reset_password_instructions_notification(token)             # global default
-        #   user.send_reset_password_instructions_notification(token, email: :primary)
-        #   user.send_reset_password_instructions_notification(token, email: :request)
+        # Callers should prefer the public #send_reset_password_instructions(email:) method
+        # rather than calling this directly.
         def send_reset_password_instructions_notification(token, email: nil)
           strategy = email || Devise::MultiEmail.password_reset_email_strategy
 

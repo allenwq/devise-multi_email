@@ -141,7 +141,7 @@ RSpec.describe 'Recoverable', type: :feature do
     end
   end
 
-  context 'when send_reset_password_instructions_notification is called with email: keyword' do
+  context 'when send_reset_password_instructions is called with email: keyword' do
     let(:user) { create_user }
     let(:secondary_email) { create_email(user) }
 
@@ -149,21 +149,21 @@ RSpec.describe 'Recoverable', type: :feature do
 
     it 'sends to primary email when email: :primary' do
       index = ActionMailer::Base.deliveries.count
-      user.send(:send_reset_password_instructions_notification, 'token', email: :primary)
+      user.send_reset_password_instructions(email: :primary)
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
     end
 
     it 'sends to the request email when email: :request' do
       index = ActionMailer::Base.deliveries.count
-      user.send(:send_reset_password_instructions_notification, 'token', email: :request)
+      user.send_reset_password_instructions(email: :request)
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]
     end
 
     it 'uses the global config (:primary by default) when no email: keyword is given' do
       index = ActionMailer::Base.deliveries.count
-      user.send(:send_reset_password_instructions_notification, 'token')
+      user.send_reset_password_instructions
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
     end
@@ -171,7 +171,7 @@ RSpec.describe 'Recoverable', type: :feature do
     it 'uses global config :request when no email: keyword is given and strategy is :request' do
       Devise::MultiEmail.password_reset_email_strategy = :request
       index = ActionMailer::Base.deliveries.count
-      user.send(:send_reset_password_instructions_notification, 'token')
+      user.send_reset_password_instructions
       Devise::MultiEmail.password_reset_email_strategy = :primary
 
       expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]

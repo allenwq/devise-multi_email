@@ -175,17 +175,17 @@ end
 
 #### Per-call override
 
-You can override the strategy for a single notification call by passing the `email:` keyword to `send_reset_password_instructions_notification`. When no keyword is given, the method falls back to the globally configured strategy (`:primary` unless otherwise configured).
+Pass the `email:` keyword to the public `send_reset_password_instructions` method to override the global strategy for that call only. When no keyword is given, it falls back to the configured strategy (`:primary` by default).
 
 ```ruby
-# Send to primary email (explicit, ignores global config)
-user.send(:send_reset_password_instructions_notification, token, email: :primary)
+# Uses global strategy (default: :primary)
+user.send_reset_password_instructions
 
-# Send to the email the user entered in the request (explicit, ignores global config)
-user.send(:send_reset_password_instructions_notification, token, email: :request)
+# Explicitly send to the primary email, ignoring global config
+user.send_reset_password_instructions(email: :primary)
 
-# No keyword — uses Devise::MultiEmail.password_reset_email_strategy (default :primary)
-user.send(:send_reset_password_instructions_notification, token)
+# Explicitly send to the email the user entered in the forgot-password form
+user.send_reset_password_instructions(email: :request)
 ```
 
 ## What's more

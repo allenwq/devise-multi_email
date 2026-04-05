@@ -6,6 +6,7 @@ RSpec.describe Devise::MultiEmail do
   def reset_configuration!
     described_class.instance_variable_set(:@autosave_emails, false)
     described_class.instance_variable_set(:@only_login_with_primary_email, false)
+    described_class.instance_variable_set(:@password_reset_email_strategy, :primary)
     described_class.instance_variable_set(:@parent_association_name, nil)
     described_class.instance_variable_set(:@emails_association_name, nil)
     described_class.instance_variable_set(:@primary_email_method_name, nil)
@@ -23,6 +24,7 @@ RSpec.describe Devise::MultiEmail do
       described_class.configure do |config|
         config.autosave_emails = true
         config.only_login_with_primary_email = true
+        config.password_reset_email_strategy = :request
         config.parent_association_name = :account
         config.emails_association_name = :email_addresses
         config.primary_email_method_name = :main_email
@@ -30,6 +32,7 @@ RSpec.describe Devise::MultiEmail do
 
       expect(described_class.autosave_emails?).to be true
       expect(described_class.only_login_with_primary_email?).to be true
+      expect(described_class.password_reset_email_strategy).to eq(:request)
       expect(described_class.parent_association_name).to eq(:account)
       expect(described_class.emails_association_name).to eq(:email_addresses)
       expect(described_class.primary_email_method_name).to eq(:main_email)
@@ -112,6 +115,58 @@ RSpec.describe Devise::MultiEmail do
       it 'sets to false when given nil' do
         described_class.only_login_with_primary_email = nil
         expect(described_class.instance_variable_get(:@only_login_with_primary_email)).to be false
+      end
+    end
+  end
+
+  describe '.password_reset_email_strategy' do
+    describe 'getter (.password_reset_email_strategy)' do
+      it 'returns :primary by default' do
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+
+      it 'returns :request when set to :request' do
+        described_class.password_reset_email_strategy = :request
+        expect(described_class.password_reset_email_strategy).to eq(:request)
+      end
+
+      it 'returns :primary when set back to :primary' do
+        described_class.password_reset_email_strategy = :request
+        described_class.password_reset_email_strategy = :primary
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+    end
+
+    describe 'setter (.password_reset_email_strategy=)' do
+      it 'sets to :request when given :request' do
+        described_class.password_reset_email_strategy = :request
+        expect(described_class.instance_variable_get(:@password_reset_email_strategy)).to eq(:request)
+      end
+
+      it 'sets to :primary when given :primary' do
+        described_class.password_reset_email_strategy = :request
+        described_class.password_reset_email_strategy = :primary
+        expect(described_class.instance_variable_get(:@password_reset_email_strategy)).to eq(:primary)
+      end
+
+      it 'coerces string "request" to :request' do
+        described_class.password_reset_email_strategy = 'request'
+        expect(described_class.password_reset_email_strategy).to eq(:request)
+      end
+
+      it 'coerces string "primary" to :primary' do
+        described_class.password_reset_email_strategy = 'primary'
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+
+      it 'falls back to :primary for unknown values' do
+        described_class.password_reset_email_strategy = :unknown
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
+      end
+
+      it 'falls back to :primary for nil' do
+        described_class.password_reset_email_strategy = nil
+        expect(described_class.password_reset_email_strategy).to eq(:primary)
       end
     end
   end
@@ -265,6 +320,7 @@ RSpec.describe Devise::MultiEmail do
       # Set multiple configuration options
       described_class.autosave_emails = true
       described_class.only_login_with_primary_email = true
+      described_class.password_reset_email_strategy = :request
       described_class.parent_association_name = :account
       described_class.emails_association_name = :addresses
       described_class.primary_email_method_name = :primary
@@ -272,6 +328,7 @@ RSpec.describe Devise::MultiEmail do
       # Verify all settings persist
       expect(described_class.autosave_emails?).to be true
       expect(described_class.only_login_with_primary_email?).to be true
+      expect(described_class.password_reset_email_strategy).to eq(:request)
       expect(described_class.parent_association_name).to eq(:account)
       expect(described_class.emails_association_name).to eq(:addresses)
       expect(described_class.primary_email_method_name).to eq(:primary)

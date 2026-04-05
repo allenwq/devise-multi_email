@@ -47,9 +47,10 @@ RSpec.describe 'Recoverable', type: :feature do
 
   context 'with non-primary email' do
     context 'when confirmed' do
+      let(:user) { create_user }
+      let(:secondary_email) { create_email(user) }
+
       before do
-        user = create_user
-        secondary_email = create_email(user)
         visit_new_password_path
 
         request_forgot_password do
@@ -61,6 +62,10 @@ RSpec.describe 'Recoverable', type: :feature do
         expect(current_path).to eq new_user_session_path
         expect(page).to have_selector('div',
                                       text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+      end
+
+      it 'sends the password reset email to the entered email address, not the primary email' do
+        expect(ActionMailer::Base.deliveries.last.to).to eq [secondary_email.email]
       end
 
       it 'redirects to password reset page when visiting the link' do

@@ -108,7 +108,7 @@ RSpec.describe 'Devise Multi Email' do
         expect(user).not_to be_valid
         expect(user.errors[:email]).to be_present
         if user.errors.respond_to?(:details)
-          expect(user.errors.details[:email].map { |e| e[:error] }).to include(:taken)
+          expect(user.errors.details[:email].first[:error]).to eq(:taken)
         end
       end
     end

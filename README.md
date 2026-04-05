@@ -6,7 +6,7 @@ Letting [Devise](https://github.com/plataformatec/devise) support multiple email
 - Recover the password with any of the emails
 - Validations for multiple emails
 
-`:multi_email_authenticatable`, `:multi_email_confirmable` and `:multi_email_validatable` are provided by _devise-multi-email_.
+`:multi_email_authenticatable`, `:multi_email_confirmable`, `:multi_email_recoverable` and `:multi_email_validatable` are provided by _devise-multi-email_.
 
 ## Getting Started
 
@@ -145,6 +145,48 @@ end
 ```
 
 You can find the detailed configurations in the [rails 5 example app](https://github.com/allenwq/devise-multi_email/tree/master/examples/rails5_app).
+
+## Recoverable with multiple emails
+
+Declare `devise :multi_email_recoverable` in your `User` model to enable password reset support that is aware of multiple emails:
+
+```ruby
+class User < ActiveRecord::Base
+  has_many :emails
+
+  devise :multi_email_authenticatable, :multi_email_confirmable,
+         :multi_email_recoverable, :multi_email_validatable
+end
+```
+
+### Controlling which address receives the password reset email
+
+By default, the password reset email is always sent to the **primary email address**, regardless of which email the user typed into the forgot-password form.
+
+You can change this globally with the `password_reset_email_strategy` option:
+
+```ruby
+Devise::MultiEmail.configure do |config|
+  # :primary (default) — always send to the user's primary email address.
+  # :request           — send to the email the user typed in the forgot-password form.
+  config.password_reset_email_strategy = :request
+end
+```
+
+#### Per-call override
+
+Pass the `email:` keyword to the public `send_reset_password_instructions` method to override the global strategy for that call only. When no keyword is given, it falls back to the configured strategy (`:primary` by default).
+
+```ruby
+# Uses global strategy (default: :primary)
+user.send_reset_password_instructions
+
+# Explicitly send to the primary email, ignoring global config
+user.send_reset_password_instructions(email: :primary)
+
+# Explicitly send to the email the user entered in the forgot-password form
+user.send_reset_password_instructions(email: :request)
+```
 
 ## What's more
 

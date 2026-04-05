@@ -3,6 +3,11 @@ require 'devise'
 
 module Devise
   module MultiEmail
+    # Default strategy for password reset emails: :primary or :request.
+    # :primary (default) sends to the user's primary email address.
+    # :request sends to the email address used in the forgot-password form.
+    @password_reset_email_strategy = :primary
+
     class << self
       def configure
         yield self
@@ -26,6 +31,26 @@ module Devise
 
       def only_login_with_primary_email=(value)
         @only_login_with_primary_email = (value == true)
+      end
+
+      # Controls which address receives password reset emails by default.
+      # Accepts :primary (default) or :request.
+      # :primary — always send to the user's primary email.
+      # :request — send to the email address the user entered in the forgot-password form.
+      # This default can be overridden per call via the email: keyword on
+      # send_reset_password_instructions_notification.
+
+      def password_reset_email_strategy
+        @password_reset_email_strategy
+      end
+
+      def password_reset_email_strategy=(value)
+        value = value.try(:to_sym)
+        if value == :request
+          @password_reset_email_strategy = :request
+        else
+          @password_reset_email_strategy = :primary
+        end
       end
 
       def parent_association_name
@@ -57,4 +82,5 @@ end
 
 Devise.add_module :multi_email_authenticatable, model: 'devise/multi_email/models/authenticatable'
 Devise.add_module :multi_email_confirmable, model: 'devise/multi_email/models/confirmable'
+Devise.add_module :multi_email_recoverable, model: 'devise/multi_email/models/recoverable'
 Devise.add_module :multi_email_validatable, model: 'devise/multi_email/models/validatable'

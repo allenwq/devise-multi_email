@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Recoverable', type: :feature do
+  before { ActionMailer::Base.deliveries.clear }
+
   def visit_new_password_path
     visit new_user_session_path
     click_link 'Forgot your password?'
@@ -47,9 +49,11 @@ RSpec.describe 'Recoverable', type: :feature do
 
   context 'with non-primary email' do
     context 'when confirmed' do
+      let(:user) { create_user }
+      let(:secondary_email) { create_email(user) }
+
       before do
-        user = create_user
-        secondary_email = create_email(user)
+        ActionMailer::Base.deliveries.clear
         visit_new_password_path
 
         request_forgot_password do
@@ -61,6 +65,10 @@ RSpec.describe 'Recoverable', type: :feature do
         expect(current_path).to eq new_user_session_path
         expect(page).to have_selector('div',
                                       text: 'You will receive an email with instructions on how to reset your password in a few minutes.')
+      end
+
+      it 'sends the password reset email to the primary email (default strategy)' do
+        expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
       end
 
       it 'redirects to password reset page when visiting the link' do
@@ -105,6 +113,68 @@ RSpec.describe 'Recoverable', type: :feature do
     it 'shows email does not exist' do
       expect(current_path).to eq '/users/password'
       expect(page).to have_selector('div', text: 'Email not found')
+    end
+  end
+
+  context 'when password_reset_email_strategy is :request (global config)' do
+    around do |example|
+      original = Devise::MultiEmail.password_reset_email_strategy
+      Devise::MultiEmail.password_reset_email_strategy = :request
+      example.run
+    ensure
+      Devise::MultiEmail.password_reset_email_strategy = original
+    end
+
+    let(:user) { create_user }
+    let(:secondary_email) { create_email(user) }
+
+    before do
+      ActionMailer::Base.deliveries.clear
+      visit_new_password_path
+      request_forgot_password do
+        fill_in 'user_email', with: secondary_email.email
+      end
+    end
+
+    it 'sends the password reset email to the entered email address, not the primary email' do
+      expect(ActionMailer::Base.deliveries.last.to).to eq [secondary_email.email]
+    end
+  end
+
+  context 'when send_reset_password_instructions is called with email: keyword' do
+    let(:user) { create_user }
+    let(:secondary_email) { create_email(user) }
+
+    before { user.current_login_email = secondary_email.email }
+
+    it 'sends to primary email when email: :primary' do
+      index = ActionMailer::Base.deliveries.count
+      user.send_reset_password_instructions(email: :primary)
+
+      expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
+    end
+
+    it 'sends to the request email when email: :request' do
+      index = ActionMailer::Base.deliveries.count
+      user.send_reset_password_instructions(email: :request)
+
+      expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]
+    end
+
+    it 'uses the global config (:primary by default) when no email: keyword is given' do
+      index = ActionMailer::Base.deliveries.count
+      user.send_reset_password_instructions
+
+      expect(ActionMailer::Base.deliveries[index].to).to eq [user.email]
+    end
+
+    it 'uses global config :request when no email: keyword is given and strategy is :request' do
+      Devise::MultiEmail.password_reset_email_strategy = :request
+      index = ActionMailer::Base.deliveries.count
+      user.send_reset_password_instructions
+      Devise::MultiEmail.password_reset_email_strategy = :primary
+
+      expect(ActionMailer::Base.deliveries[index].to).to eq [secondary_email.email]
     end
   end
 end

@@ -195,7 +195,7 @@ The gem works with all other Devise modules as expected -- you don't need to add
 ```ruby
 class User < ActiveRecord::Base
   devise :multi_email_authenticatable, :multi_email_confirmable, :multi_email_validatable, :lockable,
-         :recoverable, :registerable, :rememberable, :timeoutable, :trackable
+         :multi_email_confirmable, :registerable, :rememberable, :timeoutable, :trackable
 end
 ```
 

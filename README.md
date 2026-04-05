@@ -6,7 +6,7 @@ Letting [Devise](https://github.com/plataformatec/devise) support multiple email
 - Recover the password with any of the emails
 - Validations for multiple emails
 
-`:multi_email_authenticatable`, `:multi_email_confirmable` and `:multi_email_validatable` are provided by _devise-multi-email_.
+`:multi_email_authenticatable`, `:multi_email_confirmable`, `:multi_email_recoverable` and `:multi_email_validatable` are provided by _devise-multi-email_.
 
 ## Getting Started
 
@@ -145,6 +145,48 @@ end
 ```
 
 You can find the detailed configurations in the [rails 5 example app](https://github.com/allenwq/devise-multi_email/tree/master/examples/rails5_app).
+
+## Recoverable with multiple emails
+
+Declare `devise :multi_email_recoverable` in your `User` model to enable password reset support that is aware of multiple emails:
+
+```ruby
+class User < ActiveRecord::Base
+  has_many :emails
+
+  devise :multi_email_authenticatable, :multi_email_confirmable,
+         :multi_email_recoverable, :multi_email_validatable
+end
+```
+
+### Controlling which address receives the password reset email
+
+By default, the password reset email is sent to **the email address the user typed** into the forgot-password form, rather than always falling back to the primary email. This makes the experience more natural when a user signs in with a non-primary address.
+
+You can change this globally with the `send_reset_password_to_login_email` option:
+
+```ruby
+Devise::MultiEmail.configure do |config|
+  # Default is `true` — sends to the email the user entered in the form.
+  # Set to `false` to always send to the user's primary email instead.
+  config.send_reset_password_to_login_email = false
+end
+```
+
+#### Per-instance override
+
+Individual calls can override the global setting by setting the attribute directly on the user object before calling `send_reset_password_instructions`:
+
+```ruby
+# Send to primary email for this call only, regardless of global config
+user.send_reset_password_to_login_email = false
+user.send_reset_password_instructions
+
+# Restore global behavior
+user.send_reset_password_to_login_email = nil
+```
+
+Setting the attribute to `nil` clears the override and reverts to the global configuration.
 
 ## What's more
 

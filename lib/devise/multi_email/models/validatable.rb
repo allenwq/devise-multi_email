@@ -61,23 +61,37 @@ module Devise
 
       def propagate_email_errors
         association_name = self.class.multi_email_association.name
-        email_error_key = errors_attribute_names.detect do |key|
-          [association_name.to_s, "#{association_name}.email"].include?(key.to_s)
-        end
-        return unless email_error_key.present?
 
-        email_errors =
-          if errors.respond_to?(:details)
-            errors
-              .details[email_error_key]
-              .map { |e| e[:error] }
-              .zip(errors.delete(email_error_key) || [])
-          else
-            errors.delete(email_error_key)
+        # Match "emails.email" (old Rails) or "emails[N].email" (Rails 6.1+)
+        specific_pattern = /\A#{Regexp.escape(association_name.to_s)}(\[\d+\])?\.email\z/
+
+        email_error_keys = errors_attribute_names.select { |key| key.to_s.match?(specific_pattern) }
+
+        if email_error_keys.any?
+          # Remove any generic association base errors (e.g. emails => :invalid)
+          # so they do not appear alongside the correctly propagated errors.
+          errors_attribute_names.each do |key|
+            errors.delete(key) if key.to_s == association_name.to_s
           end
+        else
+          # Fall back to the generic base association key when no specific key exists.
+          email_error_keys = errors_attribute_names.select { |key| key.to_s == association_name.to_s }
+        end
 
-        email_errors.each do |type, message|
-          errors.add(:email, type, message: message)
+        email_error_keys.each do |email_error_key|
+          email_errors =
+            if errors.respond_to?(:details)
+              errors
+                .details[email_error_key]
+                .map { |e| e[:error] }
+                .zip(errors.delete(email_error_key) || [])
+            else
+              errors.delete(email_error_key)
+            end
+
+          email_errors.each do |type, message|
+            errors.add(:email, type, message: message)
+          end
         end
       end
 

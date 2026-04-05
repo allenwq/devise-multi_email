@@ -99,6 +99,18 @@ RSpec.describe 'Devise Multi Email' do
         expect(user.errors[:email]).to be_present
         expect(user.errors.details[:email].first[:error]).to eq(:invalid) if user.errors.respond_to?(:details)
       end
+
+      it 'propagates the uniqueness error to user with the correct error type' do
+        email = generate_email
+        create_user(email: email)
+
+        user = UserWithNestedAttributes.new(username: 'user', email: email)
+        expect(user).not_to be_valid
+        expect(user.errors[:email]).to be_present
+        if user.errors.respond_to?(:details)
+          expect(user.errors.details[:email].map { |e| e[:error] }).to include(:taken)
+        end
+      end
     end
   end
 

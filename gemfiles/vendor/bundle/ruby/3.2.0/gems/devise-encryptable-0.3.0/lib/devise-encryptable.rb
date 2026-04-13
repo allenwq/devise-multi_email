@@ -1,0 +1,1 @@
+require "devise/encryptable/encryptable"

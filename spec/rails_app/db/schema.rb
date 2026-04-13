@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 20160101102949) do
     t.integer  "failed_attempts",        default: 0
     t.string   "unlock_token"
     t.datetime "locked_at"
+    t.string   "password_salt"
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
   end

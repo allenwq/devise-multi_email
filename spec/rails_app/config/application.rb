@@ -6,6 +6,7 @@ require 'active_record/railtie'
 require 'rails/test_unit/railtie'
 
 require 'devise/multi_email'
+require 'devise-encryptable'
 
 module RailsApp
   class Application < Rails::Application

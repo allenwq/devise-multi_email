@@ -80,7 +80,21 @@ module Devise
   end
 end
 
-Devise.add_module :multi_email_authenticatable, model: 'devise/multi_email/models/authenticatable'
-Devise.add_module :multi_email_confirmable, model: 'devise/multi_email/models/confirmable'
-Devise.add_module :multi_email_recoverable, model: 'devise/multi_email/models/recoverable'
-Devise.add_module :multi_email_validatable, model: 'devise/multi_email/models/validatable'
+# Register multi_email modules right after their standard Devise counterparts in Devise::ALL.
+# This ensures they are always processed before third-party extensions such as
+# devise-encryptable, regardless of gem load order in the Gemfile. The sort in
+# Devise::Models#devise uses Devise::ALL ordering when including modules, so a lower
+# index here guarantees the base module (e.g. database_authenticatable) is included
+# before any override module (e.g. encryptable), preserving the correct MRO.
+Devise.add_module :multi_email_authenticatable,
+                  model: 'devise/multi_email/models/authenticatable',
+                  insert_at: Devise::ALL.index(:database_authenticatable).to_i + 1
+Devise.add_module :multi_email_confirmable,
+                  model: 'devise/multi_email/models/confirmable',
+                  insert_at: Devise::ALL.index(:confirmable).to_i + 1
+Devise.add_module :multi_email_recoverable,
+                  model: 'devise/multi_email/models/recoverable',
+                  insert_at: Devise::ALL.index(:recoverable).to_i + 1
+Devise.add_module :multi_email_validatable,
+                  model: 'devise/multi_email/models/validatable',
+                  insert_at: Devise::ALL.index(:validatable).to_i + 1

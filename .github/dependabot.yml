@@ -6,11 +6,30 @@
 version: 2
 updates:
   - package-ecosystem: "bundler" # See documentation for possible values
-    directories: # Location of package manifests
-      - "/examples/rails7_app"
+    directory: "/examples/rails7_app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "master"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+        
+  - package-ecosystem: "bundler" # See documentation for possible values
+    directories: 
       - "/examples/rails8_0_app"
       - "/examples/rails8_1_app"
-      - "/gemfiles/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "master"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "bundler"
+    directory: "/gemfiles/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
